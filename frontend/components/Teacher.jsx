@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Grid, Paper, Typography, useMediaQuery } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Grid, Paper, Typography, Button, useMediaQuery, Menu, MenuItem } from "@mui/material";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -8,6 +8,8 @@ import NoteIcon from "@mui/icons-material/Note";
 import ClassIcon from "@mui/icons-material/Class";
 import GroupIcon from "@mui/icons-material/Group";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
+import MenuIcon from "@mui/icons-material/Menu";
 
 // Sections with MUI Icons
 const sections = [
@@ -53,11 +55,43 @@ const sections = [
     bgColor: "#c1cfa1",
     icon: <AccountCircleIcon sx={{ fontSize: 80, color: "#5a3d31" }} />,
   },
+  {
+    title: "Manage Class",
+    description: "Access and manage your classroom tools.",
+    path: "/teacher/manageclass", // Adjust this path as needed
+    bgColor: "#c1cfa1",
+    icon: <WorkOutlineIcon sx={{ fontSize: 80, color: "#5a3d31" }} />,
+    // Add any conditional rendering logic here if needed for class teachers
+  },
 ];
 
 const Teacher = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [classMenuAnchor, setClassMenuAnchor] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(null);
+
+  const handleMenuOpen = (event) => {
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+  };
+
+  const handleClassSelect = (className) => {
+    setSelectedClass(className);
+    setClassMenuAnchor(null);
+  };
+
+  const classNames = [
+    "Math 101",
+    "Science 202",
+    "History 303",
+    "English 404",
+    "Art 505",
+  ];
 
   return (
     <motion.div
@@ -73,6 +107,87 @@ const Teacher = () => {
           background: "linear-gradient(to right, #e7cccc, #ede8dc)",
         }}
       >
+        {/* Top Section with Request Button and Select Class Button */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: isSmallScreen ? "10px" : "0px",
+          }}
+        >
+          {/* Request Button (Left Side) */}
+          <Button
+            variant="outlined"
+            onClick={handleMenuOpen}
+            sx={{
+              color: "#5a3d31",
+              borderColor: "#5a3d31",
+              "&:hover": {
+                backgroundColor: "#e7dccd",
+                borderColor: "#7a5e51",
+              },
+            }}
+          >
+            Request
+          </Button>
+
+          {/* Dropdown menu for Teachers and Students */}
+          <Menu
+            anchorEl={menuAnchor}
+            open={Boolean(menuAnchor)}
+            onClose={handleMenuClose}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+          >
+            <MenuItem onClick={() => navigate("/teacher/Reqt")}>Teachers</MenuItem>
+            <MenuItem onClick={() => navigate("/teacher/Reqs")}>Students</MenuItem>
+          </Menu>
+
+          {/* Select Class Button with Dropdown (Right Side) */}
+          <Button
+            variant="outlined"
+            onClick={(e) => setClassMenuAnchor(e.currentTarget)}
+            sx={{
+              color: "#5a3d31",
+              borderColor: "#5a3d31",
+              "&:hover": {
+                backgroundColor: "#e7dccd",
+                borderColor: "#7a5e51",
+              },
+            }}
+          >
+            {selectedClass || "Select Class"}
+          </Button>
+
+          {/* Dropdown menu for class names */}
+          <Menu
+            anchorEl={classMenuAnchor}
+            open={Boolean(classMenuAnchor)}
+            onClose={() => setClassMenuAnchor(null)}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+          >
+            {classNames.map((className, index) => (
+              <MenuItem key={index} onClick={() => handleClassSelect(className)}>
+                {className}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
+
         {/* Header with Title */}
         <Box
           sx={{
@@ -96,7 +211,7 @@ const Teacher = () => {
           </Typography>
 
           {/* Logo below the Heading */}
-          <Box sx={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
+          <Box sx={{ display: "flex", justifyContent: "center", marginTop: "" }}>
             <img
               src="./images/edu.png" // Replace with actual logo URL
               alt="Logo"

@@ -27,18 +27,12 @@ const primaryColor = "#e7cccc";
 const secondaryColor = "#ede8dc";
 const buttonHoverColor = "#7a5e51";
 
-const Assignmark = () => {
+const Mteachers = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const [showTable, setShowTable] = useState(false);
-  const [studentsData] = useState([
-    { name: "John Doe", assignment: "Research on AI", mark: "" },
-    { name: "Jane Smith", assignment: "Project on Cloud Computing", mark: "" },
-    { name: "Alice Johnson", assignment: "Presentation on Blockchain", mark: "" },
-  ]);
 
   const handleAlertClose = () => setAlert({ ...alert, open: false });
 
@@ -50,15 +44,12 @@ const Assignmark = () => {
     setMenuAnchor(null);
   };
 
-  const handleCardClick = () => {
-    setShowTable(true);
-  };
-
-  const handleMarkChange = (index, value) => {
-    const updatedData = [...studentsData];
-    updatedData[index].mark = value;
-    setAlert({ open: true, type: "success", message: "Mark updated successfully!" });
-  };
+  const teachersData = [
+    { name: "Mr. John", subject: "Operating Systems" },
+    { name: "Ms. Jane", subject: "Computer Networks" },
+    { name: "Mr. Smith", subject: "Android Development" },
+    { name: "Ms. Alice", subject: "Life Skills" },
+  ];
 
   return (
     <motion.div
@@ -82,7 +73,7 @@ const Assignmark = () => {
         {/* Top Section with Heading and Logo */}
         <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Assignment Marks
+            Teachers List
           </Typography>
           <img
             src="/images/edu.png"
@@ -179,64 +170,64 @@ const Assignmark = () => {
           )}
         </Box>
 
-        {/* Card or Table */}
-        {!showTable ? (
-          <Card
-            sx={{
-              width: "90%",
-              maxWidth: "600px",
-              marginTop: "80px",
-              textAlign: "center",
-              cursor: "pointer",
-              padding: "20px",
-              backgroundColor: "#f5e6d7",
-            }}
-            onClick={handleCardClick}
-          >
-            <Typography variant="h6" sx={{ color: "#5a3d31" }}>
-              Assignment 1
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#5a3d31", marginTop: "10px" }}>
-              Research on the advancements in AI.
-            </Typography>
-          </Card>
-        ) : (
-          <Card sx={{ width: "90%", maxWidth: "600px", marginTop: "80px" }}>
-            <CardContent>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell><strong>Student Name</strong></TableCell>
-                      <TableCell><strong>Assignment</strong></TableCell>
-                      <TableCell align="center"><strong>Mark</strong></TableCell>
+        {/* Table for Teachers List */}
+        <Card sx={{ width: "90%", maxWidth: "1200px", marginTop: "80px" }}>
+          <CardContent>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <strong>Teacher Name</strong>
+                    </TableCell>
+                    <TableCell align="center">
+                      <strong>Subject</strong>
+                    </TableCell>
+                    <TableCell align="center">
+                      <strong>Actions</strong>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {teachersData.map((teacher, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{teacher.name}</TableCell>
+                      <TableCell align="center">{teacher.subject}</TableCell>
+                      <TableCell align="center">
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          onClick={() =>
+                            setAlert({
+                              open: true,
+                              type: "warning",
+                              message: `${teacher.name} has been kicked out!`,
+                            })
+                          }
+                        >
+                          Kick Out
+                        </Button>
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {studentsData.map((student, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{student.name}</TableCell>
-                        <TableCell>{student.assignment}</TableCell>
-                        <TableCell align="center">
-                          <input
-                            type="number"
-                            value={student.mark}
-                            onChange={(e) => handleMarkChange(index, e.target.value)}
-                            style={{ width: "100%", textAlign: "center" }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        )}
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
 
-        {/* Snackbar for Alerts */}
-        <Snackbar open={alert.open} autoHideDuration={3000} onClose={handleAlertClose}>
-          <Alert onClose={handleAlertClose} severity={alert.type} sx={{ width: "100%" }}>
+        {/* Snackbar Alert */}
+        <Snackbar
+          open={alert.open}
+          autoHideDuration={3000}
+          onClose={handleAlertClose}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleAlertClose}
+            severity={alert.type}
+            sx={{ width: "100%" }}
+          >
             {alert.message}
           </Alert>
         </Snackbar>
@@ -245,4 +236,4 @@ const Assignmark = () => {
   );
 };
 
-export default Assignmark;
+export default Mteachers;

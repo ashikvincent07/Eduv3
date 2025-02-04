@@ -18,6 +18,9 @@ import {
   Menu,
   useMediaQuery,
   MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -27,18 +30,13 @@ const primaryColor = "#e7cccc";
 const secondaryColor = "#ede8dc";
 const buttonHoverColor = "#7a5e51";
 
-const Assignmark = () => {
+const Mstudents = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const [showTable, setShowTable] = useState(false);
-  const [studentsData] = useState([
-    { name: "John Doe", assignment: "Research on AI", mark: "" },
-    { name: "Jane Smith", assignment: "Project on Cloud Computing", mark: "" },
-    { name: "Alice Johnson", assignment: "Presentation on Blockchain", mark: "" },
-  ]);
+  const [selectedSubject, setSelectedSubject] = useState("OS");
 
   const handleAlertClose = () => setAlert({ ...alert, open: false });
 
@@ -50,14 +48,14 @@ const Assignmark = () => {
     setMenuAnchor(null);
   };
 
-  const handleCardClick = () => {
-    setShowTable(true);
-  };
+  const studentsData = [
+    { name: "John Doe", OS: [85, 78], CN: [90, 88], Android: [78, 84], LifeSkill: [88, 91] },
+    { name: "Jane Smith", OS: [92, 84], CN: [88, 76], Android: [84, 70], LifeSkill: [91, 75] },
+    { name: "Alice Johnson", OS: [76, 70], CN: [80, 75], Android: [70, 72], LifeSkill: [75, 78] },
+  ];
 
-  const handleMarkChange = (index, value) => {
-    const updatedData = [...studentsData];
-    updatedData[index].mark = value;
-    setAlert({ open: true, type: "success", message: "Mark updated successfully!" });
+  const handleSubjectChange = (event) => {
+    setSelectedSubject(event.target.value);
   };
 
   return (
@@ -82,7 +80,7 @@ const Assignmark = () => {
         {/* Top Section with Heading and Logo */}
         <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Assignment Marks
+            Students List
           </Typography>
           <img
             src="/images/edu.png"
@@ -100,15 +98,15 @@ const Assignmark = () => {
         {!isSmallScreen && (
           <Box
             sx={{
-              position: "fixed",
+              position: "fixed", // Use fixed position to pin it to the top-left
               top: "10px",
               left: "20px",
-              zIndex: 1000,
+              zIndex: 1000, // Ensure it's on top of other elements
             }}
           >
             <Button
               variant="outlined"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(-1)} // Goes back to the previous page
               sx={{
                 color: "#5a3d31",
                 borderColor: "#5a3d31",
@@ -158,7 +156,7 @@ const Assignmark = () => {
                 }}
               >
                 <MenuItem onClick={() => navigate("/teacher")}>Home</MenuItem>
-                <MenuItem onClick={() => navigate(-1)}>Back</MenuItem>
+                <MenuItem onClick={() => navigate(-1)}>Back</MenuItem> {/* Added Back option */}
               </Menu>
             </>
           ) : (
@@ -179,70 +177,84 @@ const Assignmark = () => {
           )}
         </Box>
 
-        {/* Card or Table */}
-        {!showTable ? (
-          <Card
-            sx={{
-              width: "90%",
-              maxWidth: "600px",
-              marginTop: "80px",
-              textAlign: "center",
-              cursor: "pointer",
-              padding: "20px",
-              backgroundColor: "#f5e6d7",
-            }}
-            onClick={handleCardClick}
-          >
-            <Typography variant="h6" sx={{ color: "#5a3d31" }}>
-              Assignment 1
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#5a3d31", marginTop: "10px" }}>
-              Research on the advancements in AI.
-            </Typography>
-          </Card>
-        ) : (
-          <Card sx={{ width: "90%", maxWidth: "600px", marginTop: "80px" }}>
-            <CardContent>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell><strong>Student Name</strong></TableCell>
-                      <TableCell><strong>Assignment</strong></TableCell>
-                      <TableCell align="center"><strong>Mark</strong></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {studentsData.map((student, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{student.name}</TableCell>
-                        <TableCell>{student.assignment}</TableCell>
-                        <TableCell align="center">
-                          <input
-                            type="number"
-                            value={student.mark}
-                            onChange={(e) => handleMarkChange(index, e.target.value)}
-                            style={{ width: "100%", textAlign: "center" }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        )}
+        {/* Table for Students List */}
+        <Card sx={{ width: "90%", maxWidth: "1200px", marginTop: "80px" }}>
+          <CardContent>
+            {/* Subject Selection Dropdown */}
+            <Box sx={{ marginBottom: "20px", textAlign: "right" }}>
+              <FormControl sx={{ minWidth: 120 }}>
+                <InputLabel id="select-subject-label">Subject</InputLabel>
+                <Select
+                  labelId="select-subject-label"
+                  value={selectedSubject}
+                  onChange={handleSubjectChange}
+                >
+                  <MenuItem value="OS">OS</MenuItem>
+                  <MenuItem value="CN">CN</MenuItem>
+                  <MenuItem value="Android">Android</MenuItem>
+                  <MenuItem value="LifeSkill">Life Skill</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
 
-        {/* Snackbar for Alerts */}
-        <Snackbar open={alert.open} autoHideDuration={3000} onClose={handleAlertClose}>
-          <Alert onClose={handleAlertClose} severity={alert.type} sx={{ width: "100%" }}>
-            {alert.message}
-          </Alert>
-        </Snackbar>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Name</strong></TableCell>
+                    <TableCell align="center"><strong>Assignment 1</strong></TableCell>
+                    <TableCell align="center"><strong>Assignment 2</strong></TableCell>
+                    <TableCell align="center"><strong>Internal 1</strong></TableCell>
+                    <TableCell align="center"><strong>Internal 2</strong></TableCell>
+                    <TableCell align="center"><strong>Actions</strong></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {studentsData.map((student, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{student.name}</TableCell>
+                      <TableCell align="center">{student[selectedSubject]?.[0]}</TableCell>
+                      <TableCell align="center">{student[selectedSubject]?.[1]}</TableCell>
+                      <TableCell align="center">{student[selectedSubject]?.[0]}</TableCell>
+                      <TableCell align="center">{student[selectedSubject]?.[1]}</TableCell>
+                      <TableCell align="center">
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          onClick={() =>
+                            setAlert({
+                              open: true,
+                              type: "warning",
+                              message: `${student.name} has been kicked out!`,
+                            })
+                          }
+                        >
+                          Kick Out
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          
+          </CardContent>
+        </Card>
       </Box>
+
+      {/* Snackbar Alert for Actions */}
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={4000}
+        onClose={handleAlertClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleAlertClose} severity={alert.type}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </motion.div>
   );
 };
 
-export default Assignmark;
+export default Mstudents;

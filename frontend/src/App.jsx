@@ -20,6 +20,16 @@ import Req from '../pages/Req';
 import Vclassrooms from '../pages/Vclassrooms';
 import MyClassrooms from '../pages/Myclassrooms';
 import Lstudents from '../pages/Lstudents';
+import Gradecard from '../pages/Gradecard';
+import Assignmark from '../pages/Assignmark';
+import Tprofile from '../pages/Tprofile';
+import Reqt from '../pages/Reqt';
+import Reqs from '../pages/Reqs';
+import Mclass from '../pages/Mclass';
+import Mstudents from '../pages/Mstudents';
+import Mteachers from '../pages/Mteachers';
+import Mgradecard from '../pages/Mgradecard';
+import Egradecard from '../pages/Egradecard';
 
 
 function App() {
@@ -48,6 +58,16 @@ function App() {
         <Route path='/teacher/classroom/view' element={<Vclassrooms/>}/>
         <Route path='/teacher/myclassroom' element={<MyClassrooms/>}/>
         <Route path='/teacher/myclassroom/studentslist' element={<Lstudents/>}/>
+        <Route path='/teacher/myclassroom/gradecard' element={<Gradecard/>}/>
+        <Route path='/teacher/myclassroom/assignmentmark' element={<Assignmark/>}/>
+        <Route path='/teacher/profile' element={<Tprofile/>}/>
+        <Route path='/teacher/reqs' element={<Reqs/>}/>
+        <Route path='/teacher/reqt' element={<Reqt/>}/>
+        <Route path='/teacher/manageclass' element={<Mclass/>}/>
+        <Route path='/teacher/manageclass/students' element={<Mstudents/>}/>
+        <Route path='/teacher/manageclass/teachers' element={<Mteachers/>}/>
+        <Route path='/teacher/manageclass/gradecard' element={<Mgradecard/>}/>
+        <Route path='/teacher/manageclass/gradecard/manage' element={<Egradecard/>}/>
         
 
       </Routes>

@@ -182,7 +182,7 @@ const MyClassrooms = () => {
                   boxShadow: 6,
                 },
               }}
-              onClick={() => navigate("/teacher/classroom/gradecard")}
+              onClick={() => navigate("/teacher/myclassroom/gradecard")}
             >
               <CardContent>
                 <GradeIcon sx={{ fontSize: 40, color: "#5a3d31" }} />
@@ -209,7 +209,7 @@ const MyClassrooms = () => {
                   boxShadow: 6,
                 },
               }}
-              onClick={() => navigate("/teacher/classroom/assignmentmark")}
+              onClick={() => navigate("/teacher/myclassroom/assignmentmark")}
             >
               <CardContent>
                 <AssignmentIcon sx={{ fontSize: 40, color: "#5a3d31" }} />
