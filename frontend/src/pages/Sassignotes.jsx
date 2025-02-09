@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Box, Typography, Paper, Grid, Button, IconButton, Menu, MenuItem, Card, CardContent, useMediaQuery } from "@mui/material";
+import { Box, Typography, Paper, Grid, Card, CardContent, Button, Snackbar, Alert, IconButton, Menu, MenuItem, useMediaQuery } from "@mui/material";
 import { motion } from "framer-motion";
-import { FaUserGraduate, FaChalkboardTeacher, FaClipboardList } from "react-icons/fa"; // React Icons for Students, Teachers, and Gradecard
+import { FaFileAlt, FaBook } from "react-icons/fa"; // React Icons for Assignment and Notes
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 
@@ -9,10 +9,11 @@ const primaryColor = "#e7cccc";
 const secondaryColor = "#ede8dc";
 const buttonHoverColor = "#7a5e51";
 
-const Mclass = () => {
+const Sassignotes = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [alert, setAlert] = useState({ open: false, type: "", message: "" });
 
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget); // Opens the menu
@@ -23,12 +24,18 @@ const Mclass = () => {
   };
 
   const handleHomeNavigate = () => {
-    navigate("/teacher");
+    navigate("/student");
     handleMenuClose();
   };
 
+ 
+
   const handleCardClick = (link) => {
     navigate(link);
+  };
+
+  const handleAlertClose = () => {
+    setAlert({ ...alert, open: false });
   };
 
   return (
@@ -53,7 +60,13 @@ const Mclass = () => {
         }}
       >
         {/* Top Section with Heading and Logo */}
-        <Box sx={{ width: "100%", textAlign: "center" }}>
+        <Box
+          sx={{
+            width: "100%",
+            textAlign: "center",
+            padding: "",
+          }}
+        >
           <Typography
             variant="h5"
             sx={{
@@ -61,10 +74,10 @@ const Mclass = () => {
               color: "#5a3d31",
             }}
           >
-            Manage Class
+            Assignments & Notes
           </Typography>
           <img
-            src="../images/edu.png" // Replace with actual logo path
+            src="../images/edu.png"
             alt="Logo"
             style={{
               height: "auto",
@@ -98,60 +111,57 @@ const Mclass = () => {
                 open={Boolean(menuAnchor)}
                 onClose={handleMenuClose}
                 anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
+                  vertical: 'top',
+                  horizontal: 'right',
                 }}
                 transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
+                  vertical: 'top',
+                  horizontal: 'right',
                 }}
               >
+              
                 <MenuItem onClick={handleHomeNavigate}>Home</MenuItem>
               </Menu>
             </>
           ) : (
-            <Button
-              variant="outlined"
-              onClick={handleHomeNavigate}
-              sx={{
-                color: "#5a3d31",
-                borderColor: "#5a3d31",
-                position: "absolute",
-                right: "20px",
-                top: "10px",
-                "&:hover": {
-                  backgroundColor: "#e7dccd",
-                  borderColor: buttonHoverColor,
-                },
-              }}
-            >
-              Home
-            </Button>
+            <>
+           
+              <Button
+                variant="outlined"
+                onClick={handleHomeNavigate}
+                sx={{
+                  color: "#5a3d31",
+                  borderColor: "#5a3d31",
+                  position: "absolute",
+                  right: "20px",
+                  top: "10px",
+                  "&:hover": {
+                    backgroundColor: "#e7dccd",
+                    borderColor: buttonHoverColor,
+                  },
+                }}
+              >
+                Home
+              </Button>
+            </>
           )}
         </Box>
 
-        {/* Cards for Students, Teachers, and Gradecard */}
+        {/* Cards for Assignments & Notes */}
         <Paper
           elevation={3}
           sx={{
             margin: "100px auto 0",
-            maxWidth: "1000px", // Adjust width for larger screens
+            maxWidth: "600px",
             width: "90%",
             padding: "20px",
             borderRadius: "12px",
             textAlign: "center",
             backgroundColor: primaryColor,
-            opacity:"inherit"
           }}
         >
-          <Grid
-            container
-            spacing={3}
-            direction={isSmallScreen ? "column" : "row"} // Stack cards vertically on small screens and align them horizontally on large screens
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Grid item xs={12} sm={4} md={3}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
               <Card
                 sx={{
                   backgroundColor: secondaryColor,
@@ -163,10 +173,10 @@ const Mclass = () => {
                     backgroundColor: "#e7dccd",
                   },
                 }}
-                onClick={() => handleCardClick("/teacher/manageclass/students")}
+                onClick={() => handleCardClick("/student/assignnotes/assignments")}
               >
                 <CardContent sx={{ textAlign: "center" }}>
-                  <FaUserGraduate size={50} />
+                  <FaFileAlt size={50} />
                   <Typography
                     variant="h6"
                     sx={{
@@ -175,12 +185,12 @@ const Mclass = () => {
                       marginTop: "10px",
                     }}
                   >
-                    Students
+                    Assignments
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
-            <Grid item xs={12} sm={4} md={3}>
+            <Grid item xs={12} sm={6}>
               <Card
                 sx={{
                   backgroundColor: secondaryColor,
@@ -192,10 +202,10 @@ const Mclass = () => {
                     backgroundColor: "#e7dccd",
                   },
                 }}
-                onClick={() => handleCardClick("/teacher/manageclass/teachers")}
+                onClick={() => handleCardClick("/student/assignnotes/notes")}
               >
                 <CardContent sx={{ textAlign: "center" }}>
-                  <FaChalkboardTeacher size={50} />
+                  <FaBook size={50} />
                   <Typography
                     variant="h6"
                     sx={{
@@ -204,45 +214,27 @@ const Mclass = () => {
                       marginTop: "10px",
                     }}
                   >
-                    Teachers
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={4} md={3}>
-              <Card
-                sx={{
-                  backgroundColor: secondaryColor,
-                  borderRadius: "12px",
-                  padding: "20px",
-                  boxShadow: 3,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#e7dccd",
-                  },
-                }}
-                onClick={() => handleCardClick("/teacher/manageclass/gradecard")}
-              >
-                <CardContent sx={{ textAlign: "center" }}>
-                  <FaClipboardList size={50} />
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: "#5a3d31",
-                      fontWeight: "bold",
-                      marginTop: "10px",
-                    }}
-                  >
-                    Gradecard
+                    Notes
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
           </Grid>
         </Paper>
+
+        {/* Snackbar for Alerts */}
+        <Snackbar
+          open={alert.open}
+          autoHideDuration={3000}
+          onClose={handleAlertClose}
+        >
+          <Alert onClose={handleAlertClose} severity={alert.type} sx={{ width: "100%" }}>
+            {alert.message}
+          </Alert>
+        </Snackbar>
       </Box>
     </motion.div>
   );
 };
 
-export default Mclass;
+export default Sassignotes;

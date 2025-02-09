@@ -5,13 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Snackbar,
   Alert,
   IconButton,
@@ -21,13 +14,14 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
-import { motion } from "framer-motion"; // Importing framer-motion
+import SchoolIcon from "@mui/icons-material/School";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import { motion } from "framer-motion";
 
 const primaryColor = "#e7cccc";
-const secondaryColor = "#ede8dc";
 const buttonHoverColor = "#7a5e51";
 
-const Lstudents = () => {
+const MyClassrooms = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
@@ -43,12 +37,6 @@ const Lstudents = () => {
   const handleMenuClose = () => {
     setMenuAnchor(null);
   };
-
-  const studentsData = [
-    { name: "John Doe", assignment1: 85, assignment2: 90, internal1: 78, internal2: 88 },
-    { name: "Jane Smith", assignment1: 92, assignment2: 88, internal1: 84, internal2: 91 },
-    { name: "Alice Johnson", assignment1: 76, assignment2: 80, internal1: 70, internal2: 75 },
-  ];
 
   return (
     <motion.div
@@ -67,12 +55,13 @@ const Lstudents = () => {
           flexDirection: "column",
           alignItems: "center",
           padding: "px 0",
+          position: "relative",
         }}
       >
         {/* Top Section with Heading and Logo */}
         <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Students List
+            My Classrooms
           </Typography>
           <img
             src="/images/edu.png"
@@ -86,34 +75,7 @@ const Lstudents = () => {
           />
         </Box>
 
-        {/* Back Button for Larger Screens */}
-        {!isSmallScreen && (
-          <Box
-            sx={{
-              position: "fixed", // Use fixed position to pin it to the top-left
-              top: "10px",
-              left: "20px",
-              zIndex: 1000, // Ensure it's on top of other elements
-            }}
-          >
-            <Button
-              variant="outlined"
-              onClick={() => navigate(-1)} // Goes back to the previous page
-              sx={{
-                color: "#5a3d31",
-                borderColor: "#5a3d31",
-                "&:hover": {
-                  backgroundColor: "#e7dccd",
-                  borderColor: buttonHoverColor,
-                },
-              }}
-            >
-              Back
-            </Button>
-          </Box>
-        )}
-
-        {/* Home Button or Dropdown for Smaller Screens */}
+        {/* Home Button or Dropdown */}
         <Box
           sx={{
             width: "100%",
@@ -148,7 +110,6 @@ const Lstudents = () => {
                 }}
               >
                 <MenuItem onClick={() => navigate("/teacher")}>Home</MenuItem>
-                <MenuItem onClick={() => navigate(-1)}>Back</MenuItem> {/* Added Back option */}
               </Menu>
             </>
           ) : (
@@ -169,35 +130,64 @@ const Lstudents = () => {
           )}
         </Box>
 
-        {/* Table for Students List */}
-        <Card sx={{ width: "90%", maxWidth: "1200px", marginTop: "80px" }}>
-          <CardContent>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell><strong>Name</strong></TableCell>
-                    <TableCell align="center"><strong>Assignment 1</strong></TableCell>
-                    <TableCell align="center"><strong>Assignment 2</strong></TableCell>
-                    <TableCell align="center"><strong>Internal 1</strong></TableCell>
-                    <TableCell align="center"><strong>Internal 2</strong></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {studentsData.map((student, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{student.name}</TableCell>
-                      <TableCell align="center">{student.assignment1}</TableCell>
-                      <TableCell align="center">{student.assignment2}</TableCell>
-                      <TableCell align="center">{student.internal1}</TableCell>
-                      <TableCell align="center">{student.internal2}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </CardContent>
-        </Card>
+        {/* Cards for Students List and Assignment Mark */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "20px",
+            marginTop: "40px",
+            flexWrap: "wrap", // Enable wrapping for smaller screens
+          }}
+        >
+          <Card
+            sx={{
+              backgroundColor: primaryColor,
+              borderRadius: "12px",
+              textAlign: "center",
+              cursor: "pointer",
+              width: isSmallScreen ? "100%" : "300px",
+              maxWidth: "300px",
+              padding: "20px",
+              boxShadow: 6,
+              "&:hover": {
+                boxShadow: 12,
+              },
+            }}
+            onClick={() => navigate("/teacher/myclassroom/studentslist")}
+          >
+            <CardContent>
+              <SchoolIcon sx={{ fontSize: 40, color: "#5a3d31" }} />
+              <Typography variant="h6" sx={{ color: "#5a3d31", marginTop: "10px" }}>
+                Students List
+              </Typography>
+            </CardContent>
+          </Card>
+
+          <Card
+            sx={{
+              backgroundColor: primaryColor,
+              borderRadius: "12px",
+              textAlign: "center",
+              cursor: "pointer",
+              width: isSmallScreen ? "100%" : "300px",
+              maxWidth: "300px",
+              padding: "20px",
+              boxShadow: 6,
+              "&:hover": {
+                boxShadow: 12,
+              },
+            }}
+            onClick={() => navigate("/teacher/myclassroom/assignmentmark")}
+          >
+            <CardContent>
+              <AssignmentIcon sx={{ fontSize: 40, color: "#5a3d31" }} />
+              <Typography variant="h6" sx={{ color: "#5a3d31", marginTop: "10px" }}>
+                Assignment Mark
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
 
         {/* Snackbar for Alerts */}
         <Snackbar open={alert.open} autoHideDuration={3000} onClose={handleAlertClose}>
@@ -210,4 +200,4 @@ const Lstudents = () => {
   );
 };
 
-export default Lstudents;
+export default MyClassrooms;

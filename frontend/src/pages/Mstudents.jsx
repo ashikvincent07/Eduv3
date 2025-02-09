@@ -18,11 +18,9 @@ import {
   Menu,
   useMediaQuery,
   MenuItem,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -32,53 +30,32 @@ const primaryColor = "#e7cccc";
 const secondaryColor = "#ede8dc";
 const buttonHoverColor = "#7a5e51";
 
-const Egradecard = () => {
+const Mstudents = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const [isPublished, setIsPublished] = useState(false);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [editSubjectIndex, setEditSubjectIndex] = useState(null);
-  const [newTotalMark, setNewTotalMark] = useState("");
-
-  const [gradeCardData, setGradeCardData] = useState([
-    { subject: "Operating Systems", teacher: "Dr. John Doe", total: "100", mark: "80" },
-    { subject: "Computer Networks", teacher: "Prof. Jane Smith", total: "100", mark: "90" },
-    { subject: "Android Development", teacher: "Mr. Peter Brown", total: "100", mark: "75" },
-    { subject: "Life Skills", teacher: "Ms. Emma White", total: "50", mark: "40" },
-  ]);
+  const [selectedSubject, setSelectedSubject] = useState("OS");
 
   const handleAlertClose = () => setAlert({ ...alert, open: false });
-  const handleMenuOpen = (event) => setMenuAnchor(event.currentTarget);
-  const handleMenuClose = () => setMenuAnchor(null);
 
-  const handlePublishClick = () => {
-    setIsPublished(!isPublished);
-    setAlert({
-      open: true,
-      type: "success",
-      message: isPublished ? "Gradecard has been unpublished!" : "Gradecard has been published!",
-    });
+  const handleMenuOpen = (event) => {
+    setMenuAnchor(event.currentTarget);
   };
 
-  const handleEditClick = (index) => {
-    setEditSubjectIndex(index);
-    setNewTotalMark(gradeCardData[index].total);
-    setOpenEditDialog(true);
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
   };
 
-  const handleEditSave = () => {
-    const updatedData = [...gradeCardData];
-    updatedData[editSubjectIndex].total = newTotalMark;
-    setGradeCardData(updatedData);
-    setOpenEditDialog(false);
-    setAlert({
-      open: true,
-      type: "success",
-      message: "Total marks updated successfully!",
-    });
+  const studentsData = [
+    { name: "John Doe", OS: [85, 78], CN: [90, 88], Android: [78, 84], LifeSkill: [88, 91] },
+    { name: "Jane Smith", OS: [92, 84], CN: [88, 76], Android: [84, 70], LifeSkill: [91, 75] },
+    { name: "Alice Johnson", OS: [76, 70], CN: [80, 75], Android: [70, 72], LifeSkill: [75, 78] },
+  ];
+
+  const handleSubjectChange = (event) => {
+    setSelectedSubject(event.target.value);
   };
 
   return (
@@ -103,7 +80,7 @@ const Egradecard = () => {
         {/* Top Section with Heading and Logo */}
         <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Gradecard
+            Students List
           </Typography>
           <img
             src="/images/edu.png"
@@ -112,7 +89,7 @@ const Egradecard = () => {
               height: "auto",
               width: "90px",
               objectFit: "contain",
-              marginTop: "px",
+              marginTop: "5px",
             }}
           />
         </Box>
@@ -200,48 +177,55 @@ const Egradecard = () => {
           )}
         </Box>
 
-        {/* Internal 1 Caption */}
-        <Box sx={{ width: "100%", textAlign: "center", padding: "10px 0" }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Internal 1
-          </Typography>
-        </Box>
-
-        {/* Gradecard Table */}
-        <Card sx={{ width: "90%", maxWidth: "1200px", marginTop: "px" }}>
+        {/* Table for Students List */}
+        <Card sx={{ width: "90%", maxWidth: "1200px", marginTop: "80px" }}>
           <CardContent>
+            {/* Subject Selection Dropdown */}
+            <Box sx={{ marginBottom: "20px", textAlign: "right" }}>
+              <FormControl sx={{ minWidth: 120 }}>
+                <InputLabel id="select-subject-label">Subject</InputLabel>
+                <Select
+                  labelId="select-subject-label"
+                  value={selectedSubject}
+                  onChange={handleSubjectChange}
+                >
+                  <MenuItem value="OS">OS</MenuItem>
+                  <MenuItem value="CN">CN</MenuItem>
+                  <MenuItem value="Android">Android</MenuItem>
+                  <MenuItem value="LifeSkill">Life Skill</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell><strong>Subject Name</strong></TableCell>
-                    <TableCell align="center"><strong>Teacher</strong></TableCell>
-                    <TableCell align="center"><strong>Marks Obtained</strong></TableCell>
-                    <TableCell align="center"><strong>Total Marks</strong></TableCell>
+                    <TableCell><strong>Name</strong></TableCell>
+                    <TableCell align="center"><strong>Assignment 1</strong></TableCell>
+                    <TableCell align="center"><strong>Assignment 2</strong></TableCell>
                     <TableCell align="center"><strong>Actions</strong></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {gradeCardData.map((row, index) => (
+                  {studentsData.map((student, index) => (
                     <TableRow key={index}>
-                      <TableCell>{row.subject}</TableCell>
-                      <TableCell align="center">{row.teacher}</TableCell>
-                      <TableCell align="center">{row.mark}</TableCell>
-                      <TableCell align="center">{row.total}</TableCell>
+                      <TableCell>{student.name}</TableCell>
+                      <TableCell align="center">{student[selectedSubject]?.[0]}</TableCell>
+                      <TableCell align="center">{student[selectedSubject]?.[1]}</TableCell>
                       <TableCell align="center">
                         <Button
                           variant="outlined"
-                          onClick={() => handleEditClick(index)}
-                          sx={{
-                            color: "#5a3d31",
-                            borderColor: "#5a3d31",
-                            "&:hover": {
-                              backgroundColor: "#e7dccd",
-                              borderColor: buttonHoverColor,
-                            },
-                          }}
+                          color="error"
+                          onClick={() =>
+                            setAlert({
+                              open: true,
+                              type: "warning",
+                              message: `${student.name} has been kicked out!`,
+                            })
+                          }
                         >
-                          Edit
+                          Kick Out
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -249,64 +233,23 @@ const Egradecard = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Box sx={{ textAlign: "center", marginTop: "20px" }}>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: isPublished ? "#4caf50" : "#5a3d31",
-                  "&:hover": {
-                    backgroundColor: isPublished ? "#45a049" : buttonHoverColor,
-                  },
-                }}
-                onClick={handlePublishClick}
-              >
-                {isPublished ? "Published" : "Publish"}
-              </Button>
-            </Box>
           </CardContent>
         </Card>
-
-        {/* Snackbar Alert */}
-        <Snackbar
-          open={alert.open}
-          autoHideDuration={3000}
-          onClose={handleAlertClose}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        >
-          <Alert
-            onClose={handleAlertClose}
-            severity={alert.type}
-            sx={{ width: "100%" }}
-          >
-            {alert.message}
-          </Alert>
-        </Snackbar>
-
-        {/* Edit Dialog */}
-        <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
-          <DialogTitle>Edit Total Marks</DialogTitle>
-          <DialogContent>
-            <TextField
-              label="Total Marks"
-              type="number"
-              value={newTotalMark}
-              onChange={(e) => setNewTotalMark(e.target.value)}
-              fullWidth
-              variant="outlined"
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenEditDialog(false)} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleEditSave} color="primary">
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Box>
+
+      {/* Snackbar Alert for Actions */}
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={4000}
+        onClose={handleAlertClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleAlertClose} severity={alert.type}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </motion.div>
   );
 };
 
-export default Egradecard;
+export default Mstudents;

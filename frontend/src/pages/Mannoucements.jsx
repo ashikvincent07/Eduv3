@@ -216,64 +216,78 @@ const Mannouncements = () => {
 
         {/* Announcement Cards */}
         <Grid container spacing={2} sx={{ maxWidth: "800px", marginTop: "100px" }}>
-          {announcements.map((announcement) => (
-            <Grid item xs={12} sm={6} key={announcement.id}>
-              <Paper
-                elevation={3}
-                sx={{
-                  padding: "15px",
-                  borderRadius: "12px",
-                  backgroundColor: primaryColor,
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", color: "#5a3d31", marginBottom: "10px" }}
-                >
-                  {announcement.heading}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#5a3d31", marginBottom: "10px" }}
-                >
-                  {announcement.text}
-                </Typography>
+  {announcements.map((announcement) => (
+    <Grid item xs={12} sm={6} key={announcement.id}>
+      <Paper
+        elevation={3}
+        sx={{
+          padding: "15px",
+          borderRadius: "12px",
+          backgroundColor: primaryColor,
+        }}
+      >
+        {/* Image Display with Default Fallback */}
+        <Box
+          sx={{
+            width: "100%",
+            paddingTop: "56.25%", // Aspect ratio 16:9
+            backgroundImage: `url(${announcement.image || "https://th.bing.com/th/id/OIP.0SaE9Mkqufvz4VilIyaD-QHaHa?w=182&h=182&c=7&r=0&o=5&pid=1.7"})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderRadius: "8px",
+            marginBottom: "10px",
+          }}
+        />
 
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Button
-                    variant="contained"
-                    startIcon={<EditIcon />}
-                    onClick={() => handleEdit(announcement.id)}
-                    sx={{
-                      backgroundColor: "#5a3d31",
-                      color: "#fff",
-                      "&:hover": {
-                        backgroundColor: buttonHoverColor,
-                      },
-                    }}
-                  >
-                    Edit
-                  </Button>
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: "bold", color: "#5a3d31", marginBottom: "10px" }}
+        >
+          {announcement.heading}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#5a3d31", marginBottom: "10px" }}
+        >
+          {announcement.text}
+        </Typography>
 
-                  <Button
-                    variant="contained"
-                    startIcon={<DeleteIcon />}
-                    onClick={() => handleDelete(announcement.id)}
-                    sx={{
-                      backgroundColor: "#b54d4d",
-                      color: "#fff",
-                      "&:hover": {
-                        backgroundColor: buttonHoverColor,
-                      },
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </Box>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Button
+            variant="contained"
+            startIcon={<EditIcon />}
+            onClick={() => handleEdit(announcement.id)}
+            sx={{
+              backgroundColor: "#5a3d31",
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: buttonHoverColor,
+              },
+            }}
+          >
+            Edit
+          </Button>
+
+          <Button
+            variant="contained"
+            startIcon={<DeleteIcon />}
+            onClick={() => handleDelete(announcement.id)}
+            sx={{
+              backgroundColor: "#b54d4d",
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: buttonHoverColor,
+              },
+            }}
+          >
+            Delete
+          </Button>
+        </Box>
+      </Paper>
+    </Grid>
+  ))}
+</Grid>
+
 
         {/* Edit Announcement Dialog */}
         <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
@@ -361,6 +375,7 @@ const Mannouncements = () => {
         <Dialog
           open={openDeleteDialog}
           onClose={() => setOpenDeleteDialog(false)}
+          
         >
           <DialogTitle>Delete Announcement</DialogTitle>
           <DialogContent>
@@ -371,13 +386,27 @@ const Mannouncements = () => {
           <DialogActions>
             <Button
               onClick={() => setOpenDeleteDialog(false)}
-              color="secondary"
+              variant="contained"
+              sx={{
+                color: "#5a3d31",
+                borderColor: "#5a3d31",
+                "&:hover": {
+                  backgroundColor: "#e7dccd",
+                },
+              }}
             >
               Cancel
             </Button>
             <Button
               onClick={handleDeleteConfirm}
-              color="primary"
+              variant="contained"
+              sx={{
+                backgroundColor: "#b54d4d",
+                color: "#fff",
+                "&:hover": {
+                  backgroundColor: buttonHoverColor,
+                },
+              }}
             >
               Delete
             </Button>
@@ -385,19 +414,11 @@ const Mannouncements = () => {
         </Dialog>
 
         {/* Alert Snackbar */}
-        <Snackbar
-          open={alert.open}
-          autoHideDuration={6000}
-          onClose={handleAlertClose}
-        >
-          <Alert
-            onClose={handleAlertClose}
-            severity={alert.type}
-            sx={{ width: "100%" }}
-          >
-            {alert.message}
-          </Alert>
-        </Snackbar>
+          <Snackbar open={alert.open} autoHideDuration={3000} onClose={handleAlertClose}>
+                <Alert onClose={handleAlertClose} severity={alert.type} sx={{ width: "100%" }}>
+                  {alert.message}
+                </Alert>
+              </Snackbar>
       </Box>
     </motion.div>
   );

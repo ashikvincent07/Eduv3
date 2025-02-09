@@ -205,6 +205,7 @@ const Teacher = () => {
               fontWeight: "bold",
               color: "#5a3d31",
               marginTop: isSmallScreen ? "10px" : "0",
+              
             }}
           >
             EDUCONNECT
