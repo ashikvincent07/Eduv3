@@ -35,7 +35,7 @@ const sections = [
     icon: <NoteIcon sx={{ fontSize: 80, color: "#5a3d31" }} />,
   },
   {
-    title: "Join Classroom",
+    title: "Create Classroom",
     description: "Manage all classrooms and groups.",
     path: "/teacher/classroom",
     bgColor: "#c1cfa1",

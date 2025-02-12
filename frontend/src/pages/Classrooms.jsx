@@ -25,15 +25,19 @@ const Classrooms = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
-  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [teacherRequestStatus, setTeacherRequestStatus] = useState("");
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
   const [menuAnchor, setMenuAnchor] = useState(null);
 
-  const subjects = ["Math", "Science", "English", "History"];
+  const semesters = ["S1", "S2", "S3", "S4", "S5", "S6"];
+  const batches = ["BCA", "B.Sc"];
+  const subjects = ["OS", "Android Programming", "CN", "Life Skill"];
 
-  const handleClassSelect = (event) => setSelectedClass(event.target.value);
+  const handleSemSelect = (event) => setSelectedSemester(event.target.value);
+  const handleBatchSelect = (event) => setSelectedBatch(event.target.value);
   const handleSubjectSelect = (event) => setSelectedSubject(event.target.value);
 
   const handleRequestApproval = () => {
@@ -86,7 +90,7 @@ const Classrooms = () => {
         {/* Top Section with Heading and Logo */}
         <Box sx={{ width: "100%", textAlign: "center", padding: "2 0" }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Manage Classrooms
+            Create Classroom
           </Typography>
           <img
             src="/images/edu.png"
@@ -163,21 +167,40 @@ const Classrooms = () => {
             <Box sx={{ width: "100%", textAlign: "center" }}>
               <TextField
                 select
-                label="Select Class"
+                label="Select Semester"
                 fullWidth
-                value={selectedClass}
-                onChange={handleClassSelect}
+                value={selectedSemester}
+                onChange={handleSemSelect}
                 sx={{
                   marginBottom: "20px",
                   backgroundColor: secondaryColor,
                   borderRadius: "8px",
                 }}
               >
-                <MenuItem value="Class 1A">Class 1A</MenuItem>
-                <MenuItem value="Class 2B">Class 2B</MenuItem>
-                <MenuItem value="Class 3C">Class 3C</MenuItem>
+                {semesters.map((sem, index) => (
+                  <MenuItem key={index} value={sem}>
+                    {sem}
+                  </MenuItem>
+                ))}
               </TextField>
-
+              <TextField
+                select
+                label="Select Batch"
+                fullWidth
+                value={selectedBatch}
+                onChange={handleBatchSelect}
+                sx={{
+                  marginBottom: "20px",
+                  backgroundColor: secondaryColor,
+                  borderRadius: "8px",
+                }}
+              >
+                {batches.map((batch, index) => (
+                  <MenuItem key={index} value={batch}>
+                    {batch}
+                  </MenuItem>
+                ))}
+              </TextField>
               <TextField
                 select
                 label="Select Subject"
@@ -209,7 +232,7 @@ const Classrooms = () => {
                 }}
                 fullWidth
               >
-                Send Request for Approval
+                Create Class
               </Button>
 
               {teacherRequestStatus && (
@@ -218,23 +241,6 @@ const Classrooms = () => {
                 </Typography>
               )}
 
-              <Button
-                variant="outlined"
-                onClick={() => navigate("/teacher/classroom/req")}
-                sx={{
-                  marginTop: "20px",
-                  color: "#5a3d31",
-                  borderColor: "#5a3d31",
-                  "&:hover": {
-                    borderColor: buttonHoverColor,
-                    backgroundColor: "#5a3d31",
-                    color: "#fff",
-                  },
-                }}
-                fullWidth
-              >
-                View Pending Requests
-              </Button>
             </Box>
           </CardContent>
         </Card>
