@@ -11,6 +11,9 @@ import {
   Menu,
   useMediaQuery,
   MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -27,15 +30,33 @@ const MyClassrooms = () => {
 
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(""); // Track selected class
+  const [classes, setClasses] = useState(["Class 1", "Class 2", "Class 3"]); // Example classes
 
   const handleAlertClose = () => setAlert({ ...alert, open: false });
-
+  
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget);
   };
 
   const handleMenuClose = () => {
     setMenuAnchor(null);
+  };
+
+  const handleClassChange = (event) => {
+    setSelectedClass(event.target.value); // Update selected class
+  };
+
+  const handleCardClick = (route) => {
+    if (!selectedClass) {
+      setAlert({
+        open: true,
+        type: "error",
+        message: "Please select a class first to proceed.",
+      });
+      return;
+    }
+    navigate(route);
   };
 
   return (
@@ -130,6 +151,25 @@ const MyClassrooms = () => {
           )}
         </Box>
 
+        {/* Class Selection Dropdown */}
+        <Box sx={{ marginTop: "30px" }}>
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel id="select-class-label">Select Class</InputLabel>
+            <Select
+              labelId="select-class-label"
+              value={selectedClass}
+              label="Select Class"
+              onChange={handleClassChange}
+            >
+              {classes.map((className, index) => (
+                <MenuItem key={index} value={className}>
+                  {className}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
         {/* Cards for Students List and Assignment Mark */}
         <Box
           sx={{
@@ -154,7 +194,10 @@ const MyClassrooms = () => {
                 boxShadow: 12,
               },
             }}
-            onClick={() => navigate("/teacher/myclassroom/studentslist")}
+            onClick={() =>
+              handleCardClick(`/teacher/myclassroom/${selectedClass}/studentslist`)
+            }
+            disabled={!selectedClass} // Disable card until class is selected
           >
             <CardContent>
               <SchoolIcon sx={{ fontSize: 40, color: "#5a3d31" }} />
@@ -178,7 +221,10 @@ const MyClassrooms = () => {
                 boxShadow: 12,
               },
             }}
-            onClick={() => navigate("/teacher/myclassroom/assignmentmark")}
+            onClick={() =>
+              handleCardClick(`/teacher/myclassroom/${selectedClass}/assignmentmark`)
+            }
+            disabled={!selectedClass} // Disable card until class is selected
           >
             <CardContent>
               <AssignmentIcon sx={{ fontSize: 40, color: "#5a3d31" }} />

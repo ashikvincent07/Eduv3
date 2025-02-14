@@ -1,21 +1,43 @@
-// Tlogin.jsx
 import React, { useState } from "react";
+import axios from "axios"; // Import Axios
 import { Box, Button, TextField, Typography, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion"; // Import Framer Motion
+import { motion } from "framer-motion";
 
 const Tlogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(""); // To display error messages
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
-    // Handle the login functionality here (you can add authentication logic)
-    console.log("Teacher Login Submitted", email, password);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    setError(""); // Clear previous errors
 
-  const handleHomeNavigate = () => {
-    navigate("/");
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
+      });
+
+      // Extract token and user details
+      const { token, user } = response.data;
+
+      // Check if the user has the role of "teacher"
+      if (user.role !== "teacher") {
+        setError("Access denied. Only teachers can log in.");
+        return;
+      }
+
+      // Store token and user in localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Redirect to the teacher's dashboard
+      navigate("/teacher");
+    } catch (err) {
+      setError(err.response?.data?.error || "Invalid credentials, please try again.");
+    }
   };
 
   return (
@@ -27,7 +49,7 @@ const Tlogin = () => {
       <Box
         sx={{
           height: "100vh",
-          width: "100vw", // Full width
+          width: "100vw",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -36,62 +58,46 @@ const Tlogin = () => {
           position: "relative",
         }}
       >
-        {/* Title Screen Button */}
         <Button
-          onClick={handleHomeNavigate}
+          onClick={() => navigate("/")}
           sx={{
             position: "absolute",
             top: "20px",
             right: "20px",
             backgroundColor: "#a5b68d",
             color: "#5a3d31",
-            "&:hover": {
-              backgroundColor: "#c1cfa1",
-              transform: "scale(1.05)", // Zoom effect on hover
-            },
+            "&:hover": { backgroundColor: "#c1cfa1", transform: "scale(1.05)" },
             fontSize: "0.9rem",
             borderRadius: "20px",
             padding: "8px 20px",
-            transition: "transform 0.3s ease", // Zoom-in effect
+            transition: "transform 0.3s ease",
           }}
         >
           Home
         </Button>
 
-        {/* Left Column: Logo on top left corner */}
         <Box
           sx={{
             position: "absolute",
-            top: "20px",  // Align to top
-            left: "20px", // Align to left
+            top: "20px",
+            left: "20px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
           }}
         >
-          <img
-            src="./images/edu.png"
-            alt="EduConnect Logo"
-            style={{
-              width: "80px",
-              height: "auto",
-            }}
-          />
+          <img src="./images/edu.png" alt="EduConnect Logo" style={{ width: "80px", height: "auto" }} />
         </Box>
 
-        {/* Form Box */}
         <Box
           sx={{
             backgroundColor: "#ede8dc",
             padding: 3,
             borderRadius: "10px",
             width: "100%",
-            maxWidth: "400px", // Adjusted max-width for responsive design
+            maxWidth: "400px",
             boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-            "@media (max-width: 600px)": {
-              maxWidth: "90%", // Make the form take more space on smaller screens
-              padding: "2rem", // Padding adjusted for smaller screens
-            },
+            "@media (max-width: 600px)": { maxWidth: "90%", padding: "2rem" },
           }}
         >
           <Typography color="purple" variant="h5" align="center" sx={{ marginBottom: 3 }}>
@@ -113,14 +119,11 @@ const Tlogin = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            {error && <Typography color="error">{error}</Typography>}
             <Button
               variant="contained"
               fullWidth
-              sx={{
-                backgroundColor: "#a5b68d",
-                color: "#5a3d31",
-                "&:hover": { backgroundColor: "#c1cfa1" },
-              }}
+              sx={{ backgroundColor: "#a5b68d", color: "#5a3d31", "&:hover": { backgroundColor: "#c1cfa1" } }}
               onClick={handleSubmit}
             >
               Login

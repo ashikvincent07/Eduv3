@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -19,7 +19,7 @@ import {
   useMediaQuery,
   MenuItem,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { motion } from "framer-motion";
 
@@ -29,7 +29,11 @@ const buttonHoverColor = "#7a5e51";
 
 const Lstudents = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
+
+  // Extract the selected class from the URL or location state (from previous page)
+  const selectedClass = location.pathname.split("/")[3] || "Class 1"; // Defaulting to Class 1
 
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -44,11 +48,22 @@ const Lstudents = () => {
     setMenuAnchor(null);
   };
 
-  const studentsData = [
-    { name: "John Doe", assignment1: 85, assignment2: 90 },
-    { name: "Jane Smith", assignment1: 92, assignment2: 88 },
-    { name: "Alice Johnson", assignment1: 76, assignment2: 80 },
-  ];
+  const studentsData = {
+    "Class 1": [
+      { name: "John Doe", assignment1: 85, assignment2: 90 },
+      { name: "Jane Smith", assignment1: 92, assignment2: 88 },
+    ],
+    "Class 2": [
+      { name: "Alice Johnson", assignment1: 76, assignment2: 80 },
+      { name: "Bob White", assignment1: 88, assignment2: 91 },
+    ],
+    "Class 3": [
+      { name: "Charlie Brown", assignment1: 90, assignment2: 95 },
+      { name: "Eve Davis", assignment1: 85, assignment2: 88 },
+    ],
+  };
+
+  const studentsForSelectedClass = studentsData[selectedClass] || [];
 
   return (
     <motion.div
@@ -72,7 +87,7 @@ const Lstudents = () => {
         {/* Top Section with Heading and Logo */}
         <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Students List
+            Students List - {selectedClass}
           </Typography>
           <img
             src="/images/edu.png"
@@ -182,7 +197,7 @@ const Lstudents = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {studentsData.map((student, index) => (
+                  {studentsForSelectedClass.map((student, index) => (
                     <TableRow key={index}>
                       <TableCell>{student.name}</TableCell>
                       <TableCell align="center">{student.assignment1}</TableCell>

@@ -119,7 +119,7 @@ const Teacher = () => {
           {/* Request Button (Left Side) */}
           <Button
             variant="outlined"
-            onClick={handleMenuOpen}
+            onClick={() => navigate("/teacher/Reqt")}
             sx={{
               color: "#5a3d31",
               borderColor: "#5a3d31",
@@ -133,7 +133,7 @@ const Teacher = () => {
           </Button>
 
           {/* Dropdown menu for Teachers and Students */}
-          <Menu
+          {/* <Menu
             anchorEl={menuAnchor}
             open={Boolean(menuAnchor)}
             onClose={handleMenuClose}
@@ -148,10 +148,10 @@ const Teacher = () => {
           >
             <MenuItem onClick={() => navigate("/teacher/Reqt")}>Teachers</MenuItem>
             <MenuItem onClick={() => navigate("/teacher/Reqs")}>Students</MenuItem>
-          </Menu>
+          </Menu> */}
 
           {/* Select Class Button with Dropdown (Right Side) */}
-          <Button
+          {/* <Button
             variant="outlined"
             onClick={(e) => setClassMenuAnchor(e.currentTarget)}
             sx={{
@@ -164,7 +164,7 @@ const Teacher = () => {
             }}
           >
             {selectedClass || "Select Class"}
-          </Button>
+          </Button> */}
 
           {/* Dropdown menu for class names */}
           <Menu

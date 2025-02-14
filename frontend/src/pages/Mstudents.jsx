@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -22,7 +22,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { motion } from "framer-motion";
 
@@ -32,11 +32,12 @@ const buttonHoverColor = "#7a5e51";
 
 const Mstudents = () => {
   const navigate = useNavigate();
+  const { classId } = useParams();  // Get the selected classId from the URL
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const [selectedSubject, setSelectedSubject] = useState("OS");
+  const [studentsData, setStudentsData] = useState([]);
 
   const handleAlertClose = () => setAlert({ ...alert, open: false });
 
@@ -48,15 +49,28 @@ const Mstudents = () => {
     setMenuAnchor(null);
   };
 
-  const studentsData = [
-    { name: "John Doe", OS: [85, 78], CN: [90, 88], Android: [78, 84], LifeSkill: [88, 91] },
-    { name: "Jane Smith", OS: [92, 84], CN: [88, 76], Android: [84, 70], LifeSkill: [91, 75] },
-    { name: "Alice Johnson", OS: [76, 70], CN: [80, 75], Android: [70, 72], LifeSkill: [75, 78] },
-  ];
+  // Mock data fetching function (replace with actual API request based on classId)
+  useEffect(() => {
+    // Replace with your actual API fetch based on the classId
+    const fetchStudents = async () => {
+      // Example: Fetching students data for a classId
+      // Example mock data based on classId
+      const mockData = {
+        "class-1": [
+          { name: "John Doe" },
+          { name: "Jane Smith" },
+        ],
+        "class-2": [
+          { name: "Alice Johnson" },
+          { name: "Bob Brown" },
+        ],
+      };
 
-  const handleSubjectChange = (event) => {
-    setSelectedSubject(event.target.value);
-  };
+      setStudentsData(mockData[classId] || []);
+    };
+
+    fetchStudents();
+  }, [classId]);  // Re-fetch data whenever classId changes
 
   return (
     <motion.div
@@ -80,7 +94,7 @@ const Mstudents = () => {
         {/* Top Section with Heading and Logo */}
         <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Students List
+            Students List for {classId}
           </Typography>
           <img
             src="/images/edu.png"
@@ -177,33 +191,14 @@ const Mstudents = () => {
           )}
         </Box>
 
-        {/* Table for Students List */}
+        {/* Table for Students List (Only Name and Actions) */}
         <Card sx={{ width: "90%", maxWidth: "1200px", marginTop: "80px" }}>
           <CardContent>
-            {/* Subject Selection Dropdown */}
-            <Box sx={{ marginBottom: "20px", textAlign: "right" }}>
-              <FormControl sx={{ minWidth: 120 }}>
-                <InputLabel id="select-subject-label">Subject</InputLabel>
-                <Select
-                  labelId="select-subject-label"
-                  value={selectedSubject}
-                  onChange={handleSubjectChange}
-                >
-                  <MenuItem value="OS">OS</MenuItem>
-                  <MenuItem value="CN">CN</MenuItem>
-                  <MenuItem value="Android">Android</MenuItem>
-                  <MenuItem value="LifeSkill">Life Skill</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
                     <TableCell><strong>Name</strong></TableCell>
-                    <TableCell align="center"><strong>Assignment 1</strong></TableCell>
-                    <TableCell align="center"><strong>Assignment 2</strong></TableCell>
                     <TableCell align="center"><strong>Actions</strong></TableCell>
                   </TableRow>
                 </TableHead>
@@ -211,8 +206,6 @@ const Mstudents = () => {
                   {studentsData.map((student, index) => (
                     <TableRow key={index}>
                       <TableCell>{student.name}</TableCell>
-                      <TableCell align="center">{student[selectedSubject]?.[0]}</TableCell>
-                      <TableCell align="center">{student[selectedSubject]?.[1]}</TableCell>
                       <TableCell align="center">
                         <Button
                           variant="outlined"

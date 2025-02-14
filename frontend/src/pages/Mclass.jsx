@@ -1,5 +1,19 @@
 import React, { useState } from "react";
-import { Box, Typography, Button, IconButton, Menu, MenuItem, Card, CardContent, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Card,
+  CardContent,
+  useMediaQuery,
+  Select,
+  MenuItem as MuiMenuItem,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
 import { motion } from "framer-motion";
 import { FaUserGraduate, FaChalkboardTeacher } from "react-icons/fa"; // React Icons for Students and Teachers
 import MenuIcon from "@mui/icons-material/Menu";
@@ -13,6 +27,9 @@ const Mclass = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [selectedClass, setSelectedClass] = useState("");
+
+  const classes = ["Class A", "Class B", "Class C", "Class D"]; // Example class list
 
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget);
@@ -25,6 +42,10 @@ const Mclass = () => {
   const handleHomeNavigate = () => {
     navigate("/teacher");
     handleMenuClose();
+  };
+
+  const handleClassSelect = (event) => {
+    setSelectedClass(event.target.value);
   };
 
   const handleCardClick = (link) => {
@@ -124,50 +145,88 @@ const Mclass = () => {
           )}
         </Box>
 
-        {/* Cards for Students and Teachers */}
-        <Box sx={{ marginTop: "80px", display: "flex", gap: 3 }}>
-          <Card
-            sx={{
-              backgroundColor: secondaryColor,
-              borderRadius: "12px",
-              padding: "20px",
-              boxShadow: 6, // Increased shadow for hover
-              cursor: "pointer",
-              "&:hover": {
-                backgroundColor: "#e7dccd",
-              },
-            }}
-            onClick={() => handleCardClick("/teacher/manageclass/students")}
-          >
-            <CardContent sx={{ textAlign: "center" }}>
-              <FaUserGraduate size={50} />
-              <Typography variant="h6" sx={{ color: "#5a3d31", fontWeight: "bold", marginTop: "10px" }}>
-                Students
-              </Typography>
-            </CardContent>
-          </Card>
-
-          <Card
-            sx={{
-              backgroundColor: secondaryColor,
-              borderRadius: "12px",
-              padding: "20px",
-              boxShadow: 6, // Increased shadow for hover
-              cursor: "pointer",
-              "&:hover": {
-                backgroundColor: "#e7dccd",
-              },
-            }}
-            onClick={() => handleCardClick("/teacher/manageclass/teachers")}
-          >
-            <CardContent sx={{ textAlign: "center" }}>
-              <FaChalkboardTeacher size={50} />
-              <Typography variant="h6" sx={{ color: "#5a3d31", fontWeight: "bold", marginTop: "10px" }}>
-                Teachers
-              </Typography>
-            </CardContent>
-          </Card>
+        {/* Class Selector */}
+        <Box sx={{ marginTop: "40px", width: "100%", textAlign: "center" }}>
+          <FormControl fullWidth sx={{ maxWidth: isSmallScreen ? "100%" : "300px" }}>
+            <InputLabel>Select Class</InputLabel>
+            <Select
+              value={selectedClass}
+              onChange={handleClassSelect}
+              label="Select Class"
+              sx={{
+                width: "100%",
+                backgroundColor: "#fff",
+                borderColor: "#5a3d31",
+                margin: "0 auto",
+              }}
+            >
+              {classes.map((className, index) => (
+                <MuiMenuItem key={index} value={className}>
+                  {className}
+                </MuiMenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
+
+        {/* Cards for Students and Teachers */}
+        {selectedClass && (
+          <Box sx={{ marginTop: "80px", display: "flex", gap: 3, flexDirection: isSmallScreen ? "column" : "row", alignItems: "center", justifyContent: "center" }}>
+            <Card
+              sx={{
+                backgroundColor: secondaryColor,
+                borderRadius: "12px",
+                padding: "20px",
+                boxShadow: 6, // Increased shadow for hover
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#e7dccd",
+                },
+                width: isSmallScreen ? "100%" : "200px", // Full width on small screens
+              }}
+              onClick={() =>
+                handleCardClick(`/teacher/manageclass/${selectedClass.toLowerCase()}/students`)
+              }
+            >
+              <CardContent sx={{ textAlign: "center" }}>
+                <FaUserGraduate size={50} />
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#5a3d31", fontWeight: "bold", marginTop: "10px" }}
+                >
+                  Students
+                </Typography>
+              </CardContent>
+            </Card>
+
+            <Card
+              sx={{
+                backgroundColor: secondaryColor,
+                borderRadius: "12px",
+                padding: "20px",
+                boxShadow: 6, // Increased shadow for hover
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#e7dccd",
+                },
+                width: isSmallScreen ? "100%" : "200px", // Full width on small screens
+              }}
+              onClick={() =>
+                handleCardClick(`/teacher/manageclass/${selectedClass.toLowerCase()}/teachers`)
+              }
+            >
+              <CardContent sx={{ textAlign: "center" }}>
+                <FaChalkboardTeacher size={50} />
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#5a3d31", fontWeight: "bold", marginTop: "10px" }}
+                >
+                  Teachers
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        )}
       </Box>
     </motion.div>
   );

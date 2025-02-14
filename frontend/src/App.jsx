@@ -65,14 +65,18 @@ function App() {
         <Route path='/teacher/classroom/req' element={<Req/>}/>
         <Route path='/teacher/classroom/view' element={<Vclassrooms/>}/>
         <Route path='/teacher/myclassroom' element={<MyClassrooms/>}/>
-        <Route path='/teacher/myclassroom/studentslist' element={<Lstudents/>}/>
-        <Route path='/teacher/myclassroom/assignmentmark' element={<Assignmark/>}/>
+        {/* <Route path='/teacher/myclassroom/studentslist' element={<Lstudents/>}/> */}
+        <Route path='/teacher/myclassroom/:classid/studentslist' element={<Lstudents/>}/>
+        {/* <Route path='/teacher/myclassroom/assignmentmark' element={<Assignmark/>}/> */}
+        <Route path='/teacher/myclassroom/:classid/assignmentmark' element={<Assignmark/>}/>
         <Route path='/teacher/profile' element={<Tprofile/>}/>
         <Route path='/teacher/reqs' element={<Reqs/>}/>
         <Route path='/teacher/reqt' element={<Reqt/>}/>
         <Route path='/teacher/manageclass' element={<Mclass/>}/>
-        <Route path='/teacher/manageclass/students' element={<Mstudents/>}/>
-        <Route path='/teacher/manageclass/teachers' element={<Mteachers/>}/>
+        {/* <Route path='/teacher/manageclass/students' element={<Mstudents/>}/> */}
+        <Route path='/teacher/manageclass/:classid/students' element={<Mstudents/>}/>
+        {/* <Route path='/teacher/manageclass/teachers' element={<Mteachers/>}/> */}
+        <Route path='/teacher/manageclass/:classid/teachers' element={<Mteachers/>}/>
         <Route path='/student' element={<Student/>}/>
         <Route path='/student/announcements' element={<Sannouncements/>}/>
         <Route path='/student/timetable' element={<Stimetable/>}/>

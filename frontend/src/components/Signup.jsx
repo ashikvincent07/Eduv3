@@ -1,49 +1,65 @@
-// Signup.jsx
 import React, { useState, useEffect } from "react";
+import axios from "axios"; // Import Axios
 import { Box, Button, TextField, Typography, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion"; // Import Framer Motion
+import { motion } from "framer-motion";
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [cpassword, setCpassword] = useState("");
-  const [animate, setAnimate] = useState(false);
+  const [error, setError] = useState(""); // Store error messages
+  const [loading, setLoading] = useState(false); // For button state
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setError(""); // Clear previous errors
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
+      setError("Please enter a valid email address.");
       return;
     }
 
     if (password.length < 8) {
-      alert("Password must be at least 8 characters long.");
+      setError("Password must be at least 8 characters long.");
       return;
     }
 
     if (password !== cpassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
 
-    console.log("Sign Up Submitted", name, email, password);
-    navigate("/login");
-  };
+    setLoading(true); // Show loading state
 
-  const handleLoginNavigate = () => {
-    navigate("/login");
-  };
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/signup", {
+        name,
+        email,
+        password,
+        role: "student", // Assuming the user is a student
+      });
 
-  
-  const handleHomeNavigate = () => {
-    navigate("/");
+      alert(response.data.message); // Show success message
+      navigate("/login"); // Redirect to login page
+    } catch (error) {
+      console.error("Signup error:", error);
+
+      // Handle duplicate email error
+      if (error.response?.data?.error === "Email already registered") {
+        setError("This email is already registered. Please use another one.");
+      } else {
+        setError(error.response?.data?.error || "Signup failed. Please try again.");
+      }
+    } finally {
+      setLoading(false); // Remove loading state
+    }
   };
 
   useEffect(() => {
-    setAnimate(true);
+    setError(""); // Clear errors when component mounts
   }, []);
 
   return (
@@ -64,49 +80,6 @@ const Signup = () => {
           position: "relative",
         }}
       >
-        {/* Title Screen Button */}
-        <Button
-           onClick={handleHomeNavigate}
-          sx={{
-            position: "absolute",
-            top: "20px",
-            right: "20px",
-            backgroundColor: "#a5b68d",
-            color: "#5a3d31",
-            "&:hover": {
-              backgroundColor: "#c1cfa1",
-              transform: "scale(1.05)",
-            },
-            fontSize: "0.9rem",
-            borderRadius: "20px",
-            padding: "8px 20px",
-            transition: "transform 0.3s ease",
-          }}
-        >
-          Home
-        </Button>
-
-        {/* Left Column: Logo on top left corner */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: "20px",  // Align to top
-            left: "20px", // Align to left
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src="./images/edu.png"
-            alt="EduConnect Logo"
-            style={{
-              width: "80px",
-              height: "auto",
-            }}
-          />
-        </Box>
-
         {/* Form Box */}
         <Box
           sx={{
@@ -115,89 +88,53 @@ const Signup = () => {
             padding: 3,
             borderRadius: "10px",
             width: "100%",
-            maxWidth: "400px", // Reduced max width for the form box to make it more compact
+            maxWidth: "400px",
             boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
             height: "auto",
             display: "flex",
-            flexDirection: "column", // Force column layout
-            alignItems: "center", // Center the form
-            "@media (max-width: 600px)": {
-              maxWidth: "90%", // Ensure form takes up most of the screen on smaller devices
-              padding: "1.5rem", // Adjust padding for smaller screens
-            },
+            flexDirection: "column",
+            alignItems: "center",
+            "@media (max-width: 600px)": { maxWidth: "90%", padding: "1.5rem" },
           }}
         >
-          {/* Right Column: Form Content */}
-          <Box sx={{ padding: 3 }}>
-            <Typography color="purple" variant="h5" align="center" sx={{ marginBottom: 3 }}>
-              Student Sign Up
-            </Typography>
-            <Stack spacing={2}>
-              <TextField
-                label="Full Name"
-                variant="outlined"
-                fullWidth
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                sx={{ maxWidth: "350px" }} // Reduced width of form fields
-              />
-              <TextField
-                label="Email"
-                variant="outlined"
-                fullWidth
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                sx={{ maxWidth: "350px" }} // Reduced width of form fields
-              />
-              <TextField
-                label="Password"
-                type="password"
-                variant="outlined"
-                fullWidth
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                sx={{ maxWidth: "350px" }} // Reduced width of form fields
-              />
-              <TextField
-                label="Confirm Password"
-                type="password"
-                variant="outlined"
-                fullWidth
-                value={cpassword}
-                onChange={(e) => setCpassword(e.target.value)}
-                sx={{ maxWidth: "350px" }} // Reduced width of form fields
-              />
+          <Typography color="purple" variant="h5" align="center" sx={{ marginBottom: 3 }}>
+            Student Sign Up
+          </Typography>
+          <Stack spacing={2}>
+            <TextField label="Full Name" variant="outlined" fullWidth value={name} onChange={(e) => setName(e.target.value)} sx={{ maxWidth: "350px" }} />
+            <TextField label="Email" variant="outlined" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} sx={{ maxWidth: "350px" }} />
+            <TextField label="Password" type="password" variant="outlined" fullWidth value={password} onChange={(e) => setPassword(e.target.value)} sx={{ maxWidth: "350px" }} />
+            <TextField label="Confirm Password" type="password" variant="outlined" fullWidth value={cpassword} onChange={(e) => setCpassword(e.target.value)} sx={{ maxWidth: "350px" }} />
 
-              {/* Sign Up Button */}
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  backgroundColor: "#a5b68d",
-                  color: "#5a3d31",
-                  "&:hover": { backgroundColor: "#c1cfa1" },
-                  maxWidth: "350px", // Reduced width of button
-                }}
-                onClick={handleSubmit}
-              >
-                Sign Up
-              </Button>
+            {/* Display error message if any */}
+            {error && <Typography color="error">{error}</Typography>}
 
-              {/* Login Navigation Button */}
-              <Button
-                variant="text"
-                fullWidth
-                sx={{
-                  textAlign: "center",
-                  color: "#5a3d31",
-                  maxWidth: "350px", // Reduced width of button
-                }}
-                onClick={handleLoginNavigate}
-              >
-                Already have an account? Login
-              </Button>
-            </Stack>
-          </Box>
+            {/* Sign Up Button */}
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{
+                backgroundColor: "#a5b68d",
+                color: "#5a3d31",
+                "&:hover": { backgroundColor: "#c1cfa1" },
+                maxWidth: "350px",
+              }}
+              onClick={handleSubmit}
+              disabled={loading} // Disable button while loading
+            >
+              {loading ? "Signing Up..." : "Sign Up"}
+            </Button>
+
+            {/* Login Navigation Button */}
+            <Button
+              variant="text"
+              fullWidth
+              sx={{ textAlign: "center", color: "#5a3d31", maxWidth: "350px" }}
+              onClick={() => navigate("/login")}
+            >
+              Already have an account? Login
+            </Button>
+          </Stack>
         </Box>
       </Box>
     </motion.div>

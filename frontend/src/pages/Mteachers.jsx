@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -18,8 +18,13 @@ import {
   Menu,
   useMediaQuery,
   MenuItem,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { motion } from "framer-motion";
 
@@ -29,10 +34,36 @@ const buttonHoverColor = "#7a5e51";
 
 const Mteachers = () => {
   const navigate = useNavigate();
+  const { classId } = useParams();  // Get the classId from the URL
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [teachersData, setTeachersData] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newTeacher, setNewTeacher] = useState({ name: "", subject: "" });
+
+  // Mock function to simulate fetching teachers for the selected classId
+  const fetchTeachersData = async () => {
+    // Example mock data based on classId
+    const mockData = {
+      "class-1": [
+        { name: "Mr. John", subject: "Operating Systems" },
+        { name: "Ms. Jane", subject: "Computer Networks" },
+      ],
+      "class-2": [
+        { name: "Mr. Smith", subject: "Android Development" },
+        { name: "Ms. Alice", subject: "Life Skills" },
+      ],
+    };
+
+    // Fetch the teachers data based on the classId
+    setTeachersData(mockData[classId] || []);
+  };
+
+  useEffect(() => {
+    fetchTeachersData();  // Fetch data when classId changes
+  }, [classId]);
 
   const handleAlertClose = () => setAlert({ ...alert, open: false });
 
@@ -44,12 +75,49 @@ const Mteachers = () => {
     setMenuAnchor(null);
   };
 
-  const teachersData = [
-    { name: "Mr. John", subject: "Operating Systems" },
-    { name: "Ms. Jane", subject: "Computer Networks" },
-    { name: "Mr. Smith", subject: "Android Development" },
-    { name: "Ms. Alice", subject: "Life Skills" },
-  ];
+  const handleAddTeacherOpen = () => {
+    setOpenDialog(true);
+  };
+
+  const handleAddTeacherClose = () => {
+    setOpenDialog(false);
+  };
+
+  const handleTeacherInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewTeacher((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleAddTeacher = () => {
+    if (newTeacher.name && newTeacher.subject) {
+      setTeachersData([...teachersData, newTeacher]);
+      setAlert({
+        open: true,
+        type: "success",
+        message: `${newTeacher.name} has been added!`,
+      });
+      setNewTeacher({ name: "", subject: "" });
+      setOpenDialog(false);
+    } else {
+      setAlert({
+        open: true,
+        type: "error",
+        message: "Please fill in both fields!",
+      });
+    }
+  };
+
+  const handleRemoveTeacher = (name) => {
+    setTeachersData(teachersData.filter((teacher) => teacher.name !== name));
+    setAlert({
+      open: true,
+      type: "warning",
+      message: `${name} has been removed from the list!`,
+    });
+  };
 
   return (
     <motion.div
@@ -73,7 +141,7 @@ const Mteachers = () => {
         {/* Top Section with Heading and Logo */}
         <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Teachers List
+            Teachers List for {classId}
           </Typography>
           <img
             src="/images/edu.png"
@@ -170,8 +238,25 @@ const Mteachers = () => {
           )}
         </Box>
 
+        {/* Add Teacher Button */}
+        <Box sx={{ marginTop: "30px" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddTeacherOpen}
+            sx={{
+              backgroundColor: "#5a3d31",
+              "&:hover": {
+                backgroundColor: buttonHoverColor,
+              },
+            }}
+          >
+            Add Teacher
+          </Button>
+        </Box>
+
         {/* Table for Teachers List */}
-        <Card sx={{ width: "90%", maxWidth: "1200px", marginTop: "80px" }}>
+        <Card sx={{ width: "90%", maxWidth: "1200px", marginTop: "30px" }}>
           <CardContent>
             <TableContainer component={Paper}>
               <Table>
@@ -197,15 +282,9 @@ const Mteachers = () => {
                         <Button
                           variant="outlined"
                           color="error"
-                          onClick={() =>
-                            setAlert({
-                              open: true,
-                              type: "warning",
-                              message: `${teacher.name} has been kicked out!`,
-                            })
-                          }
+                          onClick={() => handleRemoveTeacher(teacher.name)}
                         >
-                          Kick Out
+                          Remove
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -215,6 +294,38 @@ const Mteachers = () => {
             </TableContainer>
           </CardContent>
         </Card>
+
+        {/* Add Teacher Dialog */}
+        <Dialog open={openDialog} onClose={handleAddTeacherClose}>
+          <DialogTitle>Add Teacher</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Teacher Name"
+              variant="outlined"
+              fullWidth
+              name="name"
+              value={newTeacher.name}
+              onChange={handleTeacherInputChange}
+              sx={{ marginBottom: "15px" }}
+            />
+            <TextField
+              label="Subject"
+              variant="outlined"
+              fullWidth
+              name="subject"
+              value={newTeacher.subject}
+              onChange={handleTeacherInputChange}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleAddTeacherClose} color="secondary">
+              Cancel
+            </Button>
+            <Button onClick={handleAddTeacher} color="primary">
+              Add
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Snackbar Alert */}
         <Snackbar

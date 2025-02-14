@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -20,29 +20,58 @@ import {
 } from "@mui/material";
 import { motion } from "framer-motion";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const primaryColor = "#e7cccc";
 const secondaryColor = "#ede8dc";
 const buttonHoverColor = "#7a5e51";
 
-const studentData = {
-  assignment1: [
-    { name: "John Doe", file: "Math Homework 1", mark: "" },
-    { name: "Jane Smith", file: "Math Homework 1", mark: "" },
-  ],
-  assignment2: [
-    { name: "Alice Johnson", file: "Science Homework 2", mark: "" },
-    { name: "Bob Martin", file: "Science Homework 2", mark: "" },
-  ],
+// Mock Data (You can replace this with real API data)
+const classroomAssignments = {
+  "Class 1": {
+    assignments: [
+      { id: "assignment1", name: "Math Homework" },
+      { id: "assignment2", name: "Science Project" },
+    ],
+    students: [
+      { id: 1, name: "John Doe", assignment1: "", assignment2: "" },
+      { id: 2, name: "Jane Smith", assignment1: "", assignment2: "" },
+    ],
+  },
+  "Class 2": {
+    assignments: [
+      { id: "assignment1", name: "Physics Homework" },
+      { id: "assignment2", name: "Biology Project" },
+    ],
+    students: [
+      { id: 3, name: "Peter Parker", assignment1: "", assignment2: "" },
+      { id: 4, name: "Mary Jane", assignment1: "", assignment2: "" },
+    ],
+  },
 };
 
 const Assignmark = () => {
   const navigate = useNavigate();
+  const { className } = useParams(); // Get class name from URL
   const isSmallScreen = useMediaQuery("(max-width:600px)");
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [selectedAssignment, setSelectedAssignment] = useState("assignment1");
-  const [students, setStudents] = useState(studentData[selectedAssignment]);
+  const [students, setStudents] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [marks, setMarks] = useState({});
+  
+  useEffect(() => {
+    const classData = classroomAssignments[className];
+    if (classData) {
+      setAssignments(classData.assignments);
+      setStudents(classData.students);
+      const initialMarks = classData.students.reduce((acc, student) => {
+        acc[student.id] = student[selectedAssignment];
+        return acc;
+      }, {});
+      setMarks(initialMarks);
+    }
+  }, [className, selectedAssignment]);
 
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget);
@@ -65,13 +94,24 @@ const Assignmark = () => {
   const handleAssignmentChange = (event) => {
     const newAssignment = event.target.value;
     setSelectedAssignment(newAssignment);
-    setStudents(studentData[newAssignment]);
+    const updatedMarks = students.reduce((acc, student) => {
+      acc[student.id] = student[newAssignment];
+      return acc;
+    }, {});
+    setMarks(updatedMarks);
   };
 
-  const handleMarkChange = (index, newMark) => {
-    const updatedStudents = [...students];
-    updatedStudents[index].mark = newMark;
-    setStudents(updatedStudents);
+  const handleMarkChange = (studentId, newMark) => {
+    setMarks((prevMarks) => ({
+      ...prevMarks,
+      [studentId]: newMark,
+    }));
+  };
+
+  const handleSave = () => {
+    // Here you can make an API call to save the updated marks
+    console.log("Marks saved", marks);
+    alert("Marks saved successfully!");
   };
 
   return (
@@ -143,7 +183,7 @@ const Assignmark = () => {
             </Button>
           )}
 
-          {/* Home Button for Large Screens */}
+          {/* Home Button for Small Screens */}
           {isSmallScreen ? (
             <>
               <IconButton onClick={handleMenuOpen} sx={{ color: "#5a3d31" }}>
@@ -192,8 +232,11 @@ const Assignmark = () => {
             fullWidth
             sx={{ backgroundColor: "#ede8dc" }}
           >
-            <MenuItem value="assignment1">Assignment 1</MenuItem>
-            <MenuItem value="assignment2">Assignment 2</MenuItem>
+            {assignments.map((assignment) => (
+              <MenuItem key={assignment.id} value={assignment.id}>
+                {assignment.name}
+              </MenuItem>
+            ))}
           </Select>
         </Box>
 
@@ -203,22 +246,30 @@ const Assignmark = () => {
             <Table sx={{ backgroundColor: secondaryColor }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: "bold", color: "#5a3d31" }}>Student Name</TableCell>
-                  <TableCell sx={{ fontWeight: "bold", color: "#5a3d31" }}>File</TableCell>
-                  <TableCell sx={{ fontWeight: "bold", color: "#5a3d31" }}>Mark</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", color: "#5a3d31" }}>
+                    Student Name
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold", color: "#5a3d31" }}>
+                    File
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold", color: "#5a3d31" }}>
+                    Mark
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {students.map((student, index) => (
-                  <TableRow key={index}>
+                {students.map((student) => (
+                  <TableRow key={student.id}>
                     <TableCell>{student.name}</TableCell>
-                    <TableCell>{student.file}</TableCell>
+                    <TableCell>{student[selectedAssignment]}</TableCell>
                     <TableCell>
                       <TextField
                         variant="outlined"
                         size="small"
-                        value={student.mark}
-                        onChange={(e) => handleMarkChange(index, e.target.value)}
+                        value={marks[student.id] || ""}
+                        onChange={(e) =>
+                          handleMarkChange(student.id, e.target.value)
+                        }
                         sx={{
                           "& .MuiOutlinedInput-root": {
                             borderRadius: "8px",
@@ -250,6 +301,7 @@ const Assignmark = () => {
                 backgroundColor: buttonHoverColor,
               },
             }}
+            onClick={handleSave}
           >
             Save
           </Button>
