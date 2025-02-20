@@ -28,9 +28,9 @@ const sections = [
     icon: <CalendarTodayIcon sx={{ fontSize: 80, color: "#5a3d31" }} />,
   },
   {
-    title: "Assignments & Notes",
-    description: "Manage assignments and upload notes.",
-    path: "/teacher/assignotes",
+    title: "Upload Notes",
+    description: "Manage and upload notes.",
+    path: "/teacher/notes",
     bgColor: "#c1cfa1",
     icon: <NoteIcon sx={{ fontSize: 80, color: "#5a3d31" }} />,
   },
@@ -54,15 +54,15 @@ const sections = [
     path: "/teacher/profile",
     bgColor: "#c1cfa1",
     icon: <AccountCircleIcon sx={{ fontSize: 80, color: "#5a3d31" }} />,
-  },
-  {
-    title: "Manage Class",
-    description: "Access and manage your classroom tools.",
-    path: "/teacher/manageclass", // Adjust this path as needed
-    bgColor: "#c1cfa1",
-    icon: <WorkOutlineIcon sx={{ fontSize: 80, color: "#5a3d31" }} />,
-    // Add any conditional rendering logic here if needed for class teachers
-  },
+  }
+  // {
+  //   title: "Manage Class",
+  //   description: "Access and manage your classroom tools.",
+  //   path: "/teacher/manageclass", // Adjust this path as needed
+  //   bgColor: "#c1cfa1",
+  //   icon: <WorkOutlineIcon sx={{ fontSize: 80, color: "#5a3d31" }} />,
+  //   // Add any conditional rendering logic here if needed for class teachers
+  // },
 ];
 
 const Teacher = () => {
@@ -117,7 +117,7 @@ const Teacher = () => {
           }}
         >
           {/* Request Button (Left Side) */}
-          <Button
+          {/* <Button
             variant="outlined"
             onClick={() => navigate("/teacher/Reqt")}
             sx={{
@@ -130,7 +130,7 @@ const Teacher = () => {
             }}
           >
             Request
-          </Button>
+          </Button> */}
 
           {/* Dropdown menu for Teachers and Students */}
           {/* <Menu

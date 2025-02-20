@@ -1,241 +1,120 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
   Button,
   Card,
   CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   IconButton,
   Menu,
-  useMediaQuery,
   MenuItem,
+  useMediaQuery,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
-import { motion } from "framer-motion";
-
-const buttonHoverColor = "#7a5e51";
+import axios from "axios";
 
 const Smyclass = () => {
   const navigate = useNavigate();
+  const [classes, setClasses] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const studentId = user?.id;
   const isSmallScreen = useMediaQuery("(max-width:600px)");
   const [menuAnchor, setMenuAnchor] = useState(null);
 
-  const handleMenuOpen = (event) => {
-    setMenuAnchor(event.currentTarget);
-  };
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/classrooms/students/${studentId}/classes`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }
+        );
+        setClasses(response.data);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+      }
+    };
 
-  const handleMenuClose = () => {
-    setMenuAnchor(null);
-  };
-
-  const teachersData = [
-    { name: "Mr. John Doe", subject: "Mathematics" },
-    { name: "Ms. Jane Smith", subject: "Science" },
-    { name: "Mrs. Alice Johnson", subject: "History" },
-  ];
-
-  const studentsData = [
-    { rollNo: 101, name: "Adam White" },
-    { rollNo: 102, name: "Emma Green" },
-    { rollNo: 103, name: "Olivia Brown" },
-  ];
+    if (studentId) fetchClasses();
+  }, [studentId]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -50 }}
-      transition={{ duration: 0.8 }}
-      style={{ minHeight: "100vh", width: "100vw" }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        width: "100vw",
+        background: "linear-gradient(to right, #e7cccc, #ede8dc)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "20px 0",
+        position: "relative",
+      }}
     >
+      {/* Responsive Home Button */}
       <Box
         sx={{
-          minHeight: "100vh",
-          width: "100vw",
-          background: "linear-gradient(to right, #e7cccc, #ede8dc)",
+          position: "absolute",
+          top: "20px",
+          right: "20px",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          padding: "20px 0",
+          justifyContent: "flex-end",
         }}
       >
-        {/* Top Section with Heading and Logo */}
-        <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            My Class
-          </Typography>
-          <img
-            src="/images/edu.png"
-            alt="Logo"
-            style={{
-              height: "auto",
-              width: "90px",
-              objectFit: "contain",
-              marginTop: "5px",
-            }}
-          />
-        </Box>
-
-        {/* Home Button or Dropdown for Smaller Screens */}
-        <Box
-          sx={{
-            width: "100%",
-            position: "absolute",
-            top: "10px",
-            right: "20px",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          {isSmallScreen ? (
-            <Box
-              sx={{
-                position: "absolute",
-                right: "20px",
-                top: "10px",
-              }}
+        {isSmallScreen ? (
+          <>
+            <IconButton onClick={(e) => setMenuAnchor(e.currentTarget)} sx={{ color: "#5a3d31" }}>
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              anchorEl={menuAnchor}
+              open={Boolean(menuAnchor)}
+              onClose={() => setMenuAnchor(null)}
             >
-              <IconButton
-                onClick={handleMenuOpen}
-                sx={{
-                  color: "#5a3d31",
-                }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                anchorEl={menuAnchor}
-                open={Boolean(menuAnchor)}
-                onClose={handleMenuClose}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-              >
-                <MenuItem onClick={() => navigate("/student")}>Home</MenuItem>
-                <MenuItem onClick={() => navigate("/student/myclass/mark")}>
-                  Assignment Mark
-                </MenuItem>
-              </Menu>
-            </Box>
-          ) : (
-            <>
-              <Button
-                variant="outlined"
-                onClick={() => navigate("/student/myclass/mark")}
-                sx={{
-                  color: "#5a3d31",
-                  borderColor: "#5a3d31",
-                  marginLeft: "40px",
-                  "&:hover": {
-                    backgroundColor: "#e7dccd",
-                    borderColor: buttonHoverColor,
-                  },
-                }}
-              >
-                Assignment Mark
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => navigate("/student")}
-                sx={{
-                  color: "#5a3d31",
-                  borderColor: "#5a3d31",
-                  "&:hover": {
-                    backgroundColor: "#e7dccd",
-                    borderColor: buttonHoverColor,
-                  },
-                }}
-              >
-                Home
-              </Button>
-            </>
-          )}
-        </Box>
-
-        {/* Responsive Table Layout */}
-        <Card
-          sx={{
-            width: "90%",
-            maxWidth: "1200px",
-            marginTop: "80px",
-            display: "flex",
-            flexWrap: isSmallScreen ? "wrap" : "nowrap",
-            gap: "20px",
-          }}
-        >
-          {/* Teacher Table */}
-          <CardContent sx={{ flex: 1, minWidth: "280px" }}>
-            <Typography variant="h6" sx={{ color: "#5a3d31", marginBottom: "10px" }}>
-              Teacher List
-            </Typography>
-            <TableContainer component={Paper} sx={{ maxHeight: 300, overflowX: "auto" }}>
-              <Table stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <strong>Name</strong>
-                    </TableCell>
-                    <TableCell align="center">
-                      <strong>Subject</strong>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {teachersData.map((teacher, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{teacher.name}</TableCell>
-                      <TableCell align="center">{teacher.subject}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </CardContent>
-
-          {/* Student Table */}
-          <CardContent sx={{ flex: 1, minWidth: "280px" }}>
-            <Typography variant="h6" sx={{ color: "#5a3d31", marginBottom: "10px" }}>
-              Student List
-            </Typography>
-            <TableContainer component={Paper} sx={{ maxHeight: 300, overflowX: "auto" }}>
-              <Table stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <strong>Roll No</strong>
-                    </TableCell>
-                    <TableCell align="center">
-                      <strong>Name</strong>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {studentsData.map((student, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{student.rollNo}</TableCell>
-                      <TableCell align="center">{student.name}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </CardContent>
-        </Card>
+              <MenuItem onClick={() => navigate("/student")}>Home</MenuItem>
+            </Menu>
+          </>
+        ) : (
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/student")}
+            sx={{
+              color: "#5a3d31",
+              borderColor: "#5a3d31",
+              "&:hover": { backgroundColor: "#e7dccd", borderColor: "#7a5e51" },
+            }}
+          >
+            Home
+          </Button>
+        )}
       </Box>
-    </motion.div>
+
+      <Typography
+        variant="h5"
+        sx={{ fontWeight: "bold", color: "#5a3d31", marginTop: "20px", marginBottom: "20px" }}
+      >
+        My Classes
+      </Typography>
+
+      {classes.length > 0 ? (
+        classes.map((classroom) => (
+          <Card key={classroom._id} sx={{ width: "90%", maxWidth: "600px", marginBottom: "20px" }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ color: "#5a3d31" }}>
+                {classroom.subject} ({classroom.batch} - {classroom.semester})
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#5a3d31" }}>
+                Teacher: {classroom.teacherName}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))
+      ) : (
+        <Typography>No classes found.</Typography>
+      )}
+    </Box>
   );
 };
 

@@ -39,8 +39,6 @@ const Login = () => {
       // Store token in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-
-      alert("Login Successful!");
       navigate("/student"); // Redirect to student dashboard
     } catch (error) {
       setError(error.response?.data?.error || "Login failed. Please check your credentials.");

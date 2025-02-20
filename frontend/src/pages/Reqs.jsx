@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -7,71 +7,76 @@ import {
   Grid,
   Snackbar,
   Alert,
-  Modal,
-  IconButton,
-  useMediaQuery,
+  CircularProgress,
 } from "@mui/material";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { useParams } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-import MenuIcon from "@mui/icons-material/Menu";
-import { Menu, MenuItem } from "@mui/material";
+import axios from "axios";
 
 const primaryColor = "#e7cccc";
-const buttonHoverColor = "#7a5e51";
 
 const Reqs = () => {
-  const navigate = useNavigate();
-  const isSmallScreen = useMediaQuery("(max-width:600px)");
-
-  const [menuAnchor, setMenuAnchor] = useState(null);
-  const [requests, setRequests] = useState([
-    { id: 1, title: "S6BCAB", description: "Student Request for OS" },
-    { id: 2, title: "S4BBA", description: "Student Request for BS" },
-  ]);
+  const { classId } = useParams();
+  const [requests, setRequests] = useState([]);
+  const [classDetails, setClassDetails] = useState(null);
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [deleteRequestId, setDeleteRequestId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [processing, setProcessing] = useState(null); // Tracks which student is being processed
 
-  const handleMenuOpen = (event) => {
-    setMenuAnchor(event.currentTarget);
+  useEffect(() => {
+    if (classId) fetchJoinRequests();
+  }, [classId]);
+
+  const fetchJoinRequests = async () => {
+    setLoading(true);
+    setError(false);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `http://localhost:5000/api/classrooms/pending/${classId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setRequests(response.data.pendingStudents);
+      setClassDetails({
+        subject: response.data.subject || "Unknown Subject",
+        batch: response.data.batch || "N/A", // ✅ Now fetched from API response
+        semester: response.data.semester || "N/A", // ✅ Now fetched from API response
+      });
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleMenuClose = () => {
-    setMenuAnchor(null);
+  const handleRequestAction = async (studentId, action) => {
+    setProcessing(studentId);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `http://localhost:5000/api/classrooms/${action}/${classId}/${studentId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setRequests((prevRequests) =>
+        prevRequests.filter((request) => request._id !== studentId)
+      );
+
+      setAlert({ open: true, type: "success", message: `Student ${action}d successfully!` });
+    } catch (error) {
+      console.error("Error updating request:", error);
+      setAlert({ open: true, type: "error", message: "Action failed. Try again." });
+    } finally {
+      setProcessing(null);
+    }
   };
-
-  const handleHomeNavigate = () => {
-    navigate("/teacher");
-    handleMenuClose();
-  };
-
- 
-
-  const handleDeleteRequest = (id) => {
-    setRequests(requests.filter((request) => request.id !== id));
-    setAlert({ open: true, type: "success", message: "Request deleted successfully!" });
-  };
-
-  const handleDeleteConfirmationOpen = (id) => {
-    setDeleteRequestId(id);
-    setConfirmDeleteOpen(true);
-  };
-
-  const handleDeleteConfirmationClose = () => {
-    setConfirmDeleteOpen(false);
-    setDeleteRequestId(null);
-  };
-
-  const handleDeleteConfirmed = () => {
-    handleDeleteRequest(deleteRequestId);
-    setConfirmDeleteOpen(false);
-    setDeleteRequestId(null);
-  };
-
-  const handleAlertClose = () => setAlert({ ...alert, open: false });
 
   return (
     <motion.div
@@ -85,145 +90,89 @@ const Reqs = () => {
         sx={{
           minHeight: "100vh",
           width: "100vw",
-          overflowX: "hidden",
           background: "linear-gradient(to right, #e7cccc, #ede8dc)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          padding: "px 0",
-          position: "relative",
+          padding: "20px 0",
         }}
       >
-        {/* Top Section with Heading and Logo */}
-        <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
-            Student Requests
-          </Typography>
-          <img
-            src="/images/edu.png"
-            alt="Logo"
-            style={{
-              height: "auto",
-              width: "90px",
-              objectFit: "contain",
-              marginTop: "5px",
+        <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
+          Student Join Requests
+        </Typography>
+
+        {classDetails && (
+          <Paper
+            sx={{
+              padding: "15px",
+              marginTop: "20px",
+              backgroundColor: "#f4f4f4",
+              textAlign: "center",
+              borderRadius: "10px",
+              width: "80%",
             }}
-          />
-        </Box>
+          >
+            <Typography variant="h6">Class: {classDetails.subject}</Typography>
+            <Typography variant="body1">Batch: {classDetails.batch}</Typography>
+            <Typography variant="body1">Semester: {classDetails.semester}</Typography>
+          </Paper>
+        )}
 
-        {/* Menu and Button Component */}
-        <Box
-          sx={{
-            width: "100%",
-            position: "absolute",
-            top: "10px",
-            left: 0,
-            right: 0,
-            display: "flex",
-            justifyContent: "flex-end",
-            padding: "0 20px",
-          }}
-        >
-          {isSmallScreen ? (
-            <>
-              <IconButton onClick={handleMenuOpen} sx={{ color: "#5a3d31" }}>
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                anchorEl={menuAnchor}
-                open={Boolean(menuAnchor)}
-                onClose={handleMenuClose}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-              >
-                
-                <MenuItem onClick={handleHomeNavigate}>Home</MenuItem>
-              </Menu>
-            </>
-          ) : (
-            <>
-            
-              <Button
-                variant="outlined"
-                onClick={handleHomeNavigate}
-                sx={{
-                  color: "#5a3d31",
-                  borderColor: "#5a3d31",
-                  position: "absolute",
-                  right: "20px",
-                  top: "10px",
-                  "&:hover": {
-                    backgroundColor: "#e7dccd",
-                    borderColor: buttonHoverColor,
-                  },
-                }}
-              >
-                Home
-              </Button>
-            </>
-          )}
-        </Box>
+        {loading ? (
+          <CircularProgress sx={{ marginTop: "20px", color: "#5a3d31" }} />
+        ) : error ? (
+          <Typography variant="body1" sx={{ marginTop: "20px", color: "red" }}>
+            Failed to load requests. Please try again.
+          </Typography>
+        ) : requests.length > 0 ? (
+          <Grid container spacing={3} sx={{ justifyContent: "center", marginTop: "50px" }}>
+            {requests.map((request) => (
+              <Grid item xs={12} sm={6} md={4} key={request._id}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    padding: "20px",
+                    backgroundColor: primaryColor,
+                    borderRadius: "12px",
+                    textAlign: "center",
+                  }}
+                >
+                  <Typography variant="h6">{request.name}</Typography>
+                  <Typography variant="body1" sx={{ marginBottom: "10px" }}>
+                    Requested to join
+                  </Typography>
+                  <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Button
+                      variant="contained"
+                      startIcon={<CheckIcon />}
+                      sx={{ backgroundColor: "#4caf50", color: "#fff" }}
+                      onClick={() => handleRequestAction(request._id, "approve")}
+                      disabled={processing === request._id}
+                    >
+                      {processing === request._id ? "Processing..." : "Accept"}
+                    </Button>
+                    <Button
+                      variant="contained"
+                      startIcon={<CloseIcon />}
+                      sx={{ backgroundColor: "#f44336", color: "#fff" }}
+                      onClick={() => handleRequestAction(request._id, "decline")}
+                      disabled={processing === request._id}
+                    >
+                      {processing === request._id ? "Processing..." : "Decline"}
+                    </Button>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Typography variant="body1" sx={{ marginTop: "20px", color: "#5a3d31" }}>
+            No pending requests.
+          </Typography>
+        )}
 
-        {/* List of Requests */}
-        <Grid container spacing={3} sx={{ justifyContent: "center", marginTop: "80px" }}>
-          {requests.map((request) => (
-            <Grid item xs={12} sm={6} md={4} key={request.id}>
-              <Paper
-                elevation={3}
-                sx={{
-                  padding: "20px",
-                  backgroundColor: primaryColor,
-                  borderRadius: "12px",
-                  textAlign: "center",
-                }}
-              >
-                <Typography variant="h6">{request.title}</Typography>
-                <Typography variant="body1" sx={{ marginBottom: "10px" }}>
-                  {request.description}
-                </Typography>
-
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Button
-                    variant="contained"
-                    startIcon={<CheckIcon />}
-                    sx={{
-                      backgroundColor: "#4caf50",
-                      color: "#fff",
-                      "&:hover": {
-                        backgroundColor: buttonHoverColor,
-                      },
-                    }}
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<CloseIcon />}
-                    sx={{
-                      backgroundColor: "#f44336",
-                      color: "#fff",
-                      "&:hover": {
-                        backgroundColor: buttonHoverColor,
-                      },
-                    }}
-                  >
-                    Decline
-                  </Button>
-                </Box>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* Snackbar for Alerts */}
-        <Snackbar open={alert.open} autoHideDuration={3000} onClose={handleAlertClose}>
-          <Alert onClose={handleAlertClose} severity={alert.type} sx={{ width: "100%" }}>
+        <Snackbar open={alert.open} autoHideDuration={3000} onClose={() => setAlert({ ...alert, open: false })}>
+          <Alert onClose={() => setAlert({ ...alert, open: false })} severity={alert.type} sx={{ width: "100%" }}>
             {alert.message}
           </Alert>
         </Snackbar>

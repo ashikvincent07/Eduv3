@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Box,
   Typography,
   Button,
   Card,
   CardContent,
-  Snackbar,
-  Alert,
   IconButton,
   Menu,
   useMediaQuery,
@@ -19,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import SchoolIcon from "@mui/icons-material/School";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import { motion } from "framer-motion";
 
 const primaryColor = "#e7cccc";
@@ -28,13 +28,30 @@ const MyClassrooms = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
-  const [alert, setAlert] = useState({ open: false, type: "", message: "" });
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const [selectedClass, setSelectedClass] = useState(""); // Track selected class
-  const [classes, setClasses] = useState(["Class 1", "Class 2", "Class 3"]); // Example classes
+  const [selectedClass, setSelectedClass] = useState("");
+  const [classes, setClasses] = useState([]); // Initially empty
 
-  const handleAlertClose = () => setAlert({ ...alert, open: false });
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/classrooms/teacher/classes", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
   
+        console.log(response.data); // Debugging
+  
+        setClasses(response.data.classes); // ✅ Extracting 'classes' array correctly
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+      }
+    };
+  
+    fetchClasses();
+  }, []);
+  
+
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget);
   };
@@ -44,18 +61,10 @@ const MyClassrooms = () => {
   };
 
   const handleClassChange = (event) => {
-    setSelectedClass(event.target.value); // Update selected class
+    setSelectedClass(event.target.value);
   };
 
   const handleCardClick = (route) => {
-    if (!selectedClass) {
-      setAlert({
-        open: true,
-        type: "error",
-        message: "Please select a class first to proceed.",
-      });
-      return;
-    }
     navigate(route);
   };
 
@@ -79,7 +88,7 @@ const MyClassrooms = () => {
           position: "relative",
         }}
       >
-        {/* Top Section with Heading and Logo */}
+        {/* Page Header */}
         <Box sx={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>
             My Classrooms
@@ -96,40 +105,14 @@ const MyClassrooms = () => {
           />
         </Box>
 
-        {/* Home Button or Dropdown */}
-        <Box
-          sx={{
-            width: "100%",
-            position: "absolute",
-            top: "10px",
-            right: "20px",
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
+        {/* Navigation */}
+        <Box sx={{ width: "100%", position: "absolute", top: "10px", right: "20px", display: "flex", justifyContent: "flex-end" }}>
           {isSmallScreen ? (
             <>
-              <IconButton
-                onClick={handleMenuOpen}
-                sx={{
-                  color: "#5a3d31",
-                }}
-              >
+              <IconButton onClick={handleMenuOpen} sx={{ color: "#5a3d31" }}>
                 <MenuIcon />
               </IconButton>
-              <Menu
-                anchorEl={menuAnchor}
-                open={Boolean(menuAnchor)}
-                onClose={handleMenuClose}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-              >
+              <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleMenuClose}>
                 <MenuItem onClick={() => navigate("/teacher")}>Home</MenuItem>
               </Menu>
             </>
@@ -137,21 +120,14 @@ const MyClassrooms = () => {
             <Button
               variant="outlined"
               onClick={() => navigate("/teacher")}
-              sx={{
-                color: "#5a3d31",
-                borderColor: "#5a3d31",
-                "&:hover": {
-                  backgroundColor: "#e7dccd",
-                  borderColor: buttonHoverColor,
-                },
-              }}
+              sx={{ color: "#5a3d31", borderColor: "#5a3d31", "&:hover": { backgroundColor: "#e7dccd", borderColor: buttonHoverColor } }}
             >
               Home
             </Button>
           )}
         </Box>
 
-        {/* Class Selection Dropdown */}
+        {/* Class Selection */}
         <Box sx={{ marginTop: "30px" }}>
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel id="select-class-label">Select Class</InputLabel>
@@ -161,86 +137,64 @@ const MyClassrooms = () => {
               label="Select Class"
               onChange={handleClassChange}
             >
-              {classes.map((className, index) => (
-                <MenuItem key={index} value={className}>
-                  {className}
+            {classes.length > 0 ? (
+            classes.map((classObj) => (
+                <MenuItem key={classObj._id} value={classObj._id}> 
+                  {`${classObj.subject} - ${classObj.semester} (${classObj.batch})`}
                 </MenuItem>
-              ))}
+                ))
+              ) : (
+                <MenuItem disabled>No Classes Available</MenuItem>
+              )}
             </Select>
+
           </FormControl>
         </Box>
 
-        {/* Cards for Students List and Assignment Mark */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "20px",
-            marginTop: "40px",
-            flexWrap: "wrap", // Enable wrapping for smaller screens
-          }}
-        >
-          <Card
-            sx={{
-              backgroundColor: primaryColor,
-              borderRadius: "12px",
-              textAlign: "center",
-              cursor: "pointer",
-              width: isSmallScreen ? "100%" : "300px",
-              maxWidth: "300px",
-              padding: "20px",
-              boxShadow: 6,
-              "&:hover": {
-                boxShadow: 12,
-              },
-            }}
-            onClick={() =>
-              handleCardClick(`/teacher/myclassroom/${selectedClass}/studentslist`)
-            }
-            disabled={!selectedClass} // Disable card until class is selected
-          >
-            <CardContent>
-              <SchoolIcon sx={{ fontSize: 40, color: "#5a3d31" }} />
-              <Typography variant="h6" sx={{ color: "#5a3d31", marginTop: "10px" }}>
-                Students List
-              </Typography>
-            </CardContent>
-          </Card>
+        {/* Classroom Cards */}
+        {selectedClass && (
+          <Box sx={{ display: "flex", justifyContent: "center", gap: "20px", marginTop: "40px", flexWrap: "wrap" }}>
+            <Card
+              sx={{
+                backgroundColor: primaryColor,
+                borderRadius: "12px",
+                textAlign: "center",
+                cursor: "pointer",
+                width: isSmallScreen ? "100%" : "300px",
+                maxWidth: "300px",
+                padding: "20px",
+                boxShadow: 6,
+                "&:hover": { boxShadow: 12 },
+              }}
+              onClick={() => handleCardClick(`/teacher/myclassroom/${selectedClass}/studentslist`)}
+            >
+              <CardContent>
+                <SchoolIcon sx={{ fontSize: 40, color: "#5a3d31" }} />
+                <Typography variant="h6" sx={{ color: "#5a3d31", marginTop: "10px" }}>Students List</Typography>
+              </CardContent>
+            </Card>
 
-          <Card
-            sx={{
-              backgroundColor: primaryColor,
-              borderRadius: "12px",
-              textAlign: "center",
-              cursor: "pointer",
-              width: isSmallScreen ? "100%" : "300px",
-              maxWidth: "300px",
-              padding: "20px",
-              boxShadow: 6,
-              "&:hover": {
-                boxShadow: 12,
-              },
-            }}
-            onClick={() =>
-              handleCardClick(`/teacher/myclassroom/${selectedClass}/assignmentmark`)
-            }
-            disabled={!selectedClass} // Disable card until class is selected
-          >
-            <CardContent>
-              <AssignmentIcon sx={{ fontSize: 40, color: "#5a3d31" }} />
-              <Typography variant="h6" sx={{ color: "#5a3d31", marginTop: "10px" }}>
-                Assignment Mark
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-
-        {/* Snackbar for Alerts */}
-        <Snackbar open={alert.open} autoHideDuration={3000} onClose={handleAlertClose}>
-          <Alert onClose={handleAlertClose} severity={alert.type} sx={{ width: "100%" }}>
-            {alert.message}
-          </Alert>
-        </Snackbar>
+            <Card
+              sx={{
+                backgroundColor: primaryColor,
+                borderRadius: "12px",
+                textAlign: "center",
+                cursor: "pointer",
+                width: isSmallScreen ? "100%" : "300px",
+                maxWidth: "300px",
+                padding: "20px",
+                boxShadow: 6,
+                "&:hover": { boxShadow: 12 },
+              }}
+              onClick={() => handleCardClick(`/teacher/myclassroom/${selectedClass}/joinrequests`)}
+            >
+              <CardContent>
+                <GroupAddIcon sx={{ fontSize: 40, color: "#5a3d31" }} />
+                <Typography variant="h6" sx={{ color: "#5a3d31", marginTop: "10px" }}>Join Requests</Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        )}
       </Box>
     </motion.div>
   );

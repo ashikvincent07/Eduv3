@@ -42,12 +42,12 @@ const Notes = () => {
   };
 
   const handleHomeNavigate = () => {
-    navigate("/teacher/assignotes");
+    navigate("/teacher");
     handleMenuClose();
   };
 
   const handleManageNavigate = () => {
-    navigate("/teacher/assignotes/notes/manage");
+    navigate("/teacher/notes/manage");
     handleMenuClose();
   };
 

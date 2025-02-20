@@ -10,7 +10,6 @@ import Announcements from './pages/Announcements';
 import Timetable from './pages/Timetable';
 import Mannouncements from './pages/Mannoucements';
 import Mtimetable from './pages/Mtimetable';
-import Assignotes from './pages/Assignotes';
 import Assignments from './pages/Assignments';
 import Massignments from './pages/Massignments';
 import Notes from './pages/Notes';
@@ -56,22 +55,24 @@ function App() {
         <Route path='/teacher/announcements/manage' element={<Mannouncements/>}/>
         <Route path='/teacher/timetable' element={<Timetable/>}/>
         <Route path='/teacher/timetable/edit' element={<Mtimetable/>}/>
-        <Route path='/teacher/assignotes' element={<Assignotes/>}/>
+        <Route path='/teacher/notes' element={<Notes/>}/>
+        <Route path='/teacher/notes/manage' element={<Mnotes/>}/>
+        {/* <Route path='/teacher/assignotes' element={<Assignotes/>}/>
         <Route path='/teacher/assignotes/assignments' element={<Assignments/>}/>
         <Route path='/teacher/assignotes/assignments/manage' element={<Massignments/>}/>
         <Route path='/teacher/assignotes/notes' element={<Notes/>}/>
-        <Route path='/teacher/assignotes/notes/manage' element={<Mnotes/>}/>
+        <Route path='/teacher/assignotes/notes/manage' element={<Mnotes/>}/> */}
         <Route path='/teacher/classroom' element={<Classrooms/>}/>
         <Route path='/teacher/classroom/req' element={<Req/>}/>
         <Route path='/teacher/classroom/view' element={<Vclassrooms/>}/>
         <Route path='/teacher/myclassroom' element={<MyClassrooms/>}/>
         {/* <Route path='/teacher/myclassroom/studentslist' element={<Lstudents/>}/> */}
-        <Route path='/teacher/myclassroom/:classid/studentslist' element={<Lstudents/>}/>
+        <Route path='/teacher/myclassroom/:classId/studentslist' element={<Lstudents/>}/>
         {/* <Route path='/teacher/myclassroom/assignmentmark' element={<Assignmark/>}/> */}
-        <Route path='/teacher/myclassroom/:classid/assignmentmark' element={<Assignmark/>}/>
+        <Route path='/teacher/myclassroom/:classId/assignmentmark' element={<Assignmark/>}/>
         <Route path='/teacher/profile' element={<Tprofile/>}/>
         <Route path='/teacher/reqs' element={<Reqs/>}/>
-        <Route path='/teacher/reqt' element={<Reqt/>}/>
+        <Route path="/teacher/myclassroom/:classId/joinrequests" element={<Reqs />} />
         <Route path='/teacher/manageclass' element={<Mclass/>}/>
         {/* <Route path='/teacher/manageclass/students' element={<Mstudents/>}/> */}
         <Route path='/teacher/manageclass/:classid/students' element={<Mstudents/>}/>
@@ -80,16 +81,13 @@ function App() {
         <Route path='/student' element={<Student/>}/>
         <Route path='/student/announcements' element={<Sannouncements/>}/>
         <Route path='/student/timetable' element={<Stimetable/>}/>
-        <Route path='/student/assignnotes' element={<Sassignotes/>}/>
-        <Route path='/student/assignnotes/assignments' element={<Sassignments/>}/>
-        <Route path='/student/assignnotes/notes' element={<Snotes/>}/>
+        {/* <Route path='/student/assignnotes' element={<Sassignotes/>}/>
+        <Route path='/student/assignnotes/assignments' element={<Sassignments/>}/> */}
+        <Route path='/student/notes' element={<Snotes/>}/>
         <Route path='/student/joinclass' element={<Sjoinclass/>}/>
         <Route path='/student/myclass' element={<Smyclass/>}/>
         <Route path='/student/profile' element={<Sprofile/>}/>
         <Route path='/student/myclass/mark' element={<Smark/>}/>
-       
-        
-
       </Routes>
 
 
