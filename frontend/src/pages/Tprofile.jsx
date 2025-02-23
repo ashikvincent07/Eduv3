@@ -36,7 +36,7 @@ const Tprofile = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Clear authentication data
+    localStorage.removeItem("token"); // Remove token from storage
     navigate("/"); // Redirect to login page
   };
 
@@ -106,13 +106,13 @@ const Tprofile = () => {
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
               >
-                <MenuItem onClick={() => navigate("/teacher")}>Home</MenuItem>
+                <MenuItem onClick={() => navigate("/student")}>Home</MenuItem>
               </Menu>
             </>
           ) : (
             <Button
               variant="outlined"
-              onClick={() => navigate("/teacher")}
+              onClick={() => navigate("/student")}
               sx={{
                 color: "#5a3d31",
                 borderColor: "#5a3d31",
@@ -150,7 +150,7 @@ const Tprofile = () => {
                 Email: {profile?.email || "N/A"}
               </Typography>
               <Typography variant="body1" sx={{ color: "#5a3d31", marginTop: "10px" }}>
-                Role: {profile?.role || "Teacher"}
+                Role: {profile?.role || "Student"}
               </Typography>
             </>
           )}

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Box, Typography, Button, Paper, IconButton, Menu, MenuItem } from "@mui/material";
+import { Box, Typography, Button, Paper, MenuItem, Select } from "@mui/material";
 import { motion } from "framer-motion";
-import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 
 // Color Palette
@@ -9,48 +8,121 @@ const primaryColor = "#e7cccc";
 const secondaryColor = "#ede8dc";
 const buttonHoverColor = "#7a5e51";
 
-// Timetable data (for periods and subjects)
+// Sample timetable data structure
 const timetableData = {
-  Monday: [
-    "Math", "English", "Science", "Break", "History", "Physical Education",
-  ],
-  Tuesday: [
-    "Biology", "Chemistry", "Math", "Break", "Literature", "Sports",
-  ],
-  Wednesday: [
-    "Physics", "History", "Geography", "Break", "Music", "Drama",
-  ],
-  Thursday: [
-    "Math", "History", "Art", "Break", "Physical Education", "Science",
-  ],
-  Friday: [
-    "English", "Literature", "Math", "Break", "Music", "Sports",
-  ],
+  "Sem 1": {
+    "BCA": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    },
+    "B.Sc": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    }
+  },
+  "Sem 2": {
+    "BCA": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    },
+    "B.Sc": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    }
+  },
+  "Sem 3": {
+    "BCA": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    },
+    "B.Sc": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    }
+  },
+  "Sem 4": {
+    "BCA": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    },
+    "B.Sc": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    }
+  },
+  "Sem 5": {
+    "BCA": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    },
+    "B.Sc": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    }
+  },
+  "Sem 6": {
+    "BCA": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    },
+    "B.Sc": {
+      Monday: ["Math", "English", "Science", "Break", "History", "Physical Education"],
+      Tuesday: ["Biology", "Chemistry", "Math", "Break", "Literature", "Sports"],
+      Wednesday: ["Physics", "History", "Geography", "Break", "Music", "Drama"],
+      Thursday: ["Math", "History", "Art", "Break", "Physical Education", "Science"],
+      Friday: ["English", "Literature", "Math", "Break", "Music", "Sports"],
+    }
+  },
+  
 };
 
 const periods = ["I", "II", "III", "IV", "V", "VI"]; // Roman numerals for periods
+const semesters = Object.keys(timetableData);
+const classes = Object.keys(timetableData[semesters[0]]);
 
-const Stimetable = () => {
+const STimetable = () => {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleHomeNavigate = () => {
-    navigate("/student"); // Navigate to the home page
-  };
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget); // Open the menu
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null); // Close the menu
-  };
+  const [selectedSemester, setSelectedSemester] = useState(semesters[0]);
+  const [selectedClass, setSelectedClass] = useState(classes[0]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}  // Start below the screen
-      animate={{ opacity: 1, y: 0 }}   // Slide to the center
-      exit={{ opacity: 0, y: 50 }}     // Slide back down when leaving
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 50 }}
       transition={{ duration: 0.8 }}
       style={{ minHeight: "100vh", width: "100vw" }}
     >
@@ -64,197 +136,64 @@ const Stimetable = () => {
           flexDirection: "column",
           alignItems: "center",
           padding: "20px 0",
-          position: "relative",
         }}
       >
-        {/* Responsive Buttons and Logo */}
-        <Box
+        {/* Navigation */}
+        <Button
+          variant="outlined"
+          onClick={() => navigate("/student")}
           sx={{
             position: "absolute",
             top: "10px",
-            left: "20px", // Home button to top left corner
-            display: { xs: "none", md: "block" }, // Hide on small screens
-          }}
-        ></Box>
-
-        <Box
-          sx={{
-            position: "absolute",
-            top: "10px",
-            right: "20px", // Edit Timetable button to top right corner
-            display: { xs: "none", md: "block" }, // Hide on small screens
+            left: "20px",
+            color: "#5a3d31",
+            borderColor: "#5a3d31",
+            "&:hover": {
+              backgroundColor: "#e7dccd",
+              borderColor: buttonHoverColor,
+            },
           }}
         >
-          <Button
-            variant="outlined"
-            onClick={handleHomeNavigate}
-            sx={{
-              color: "#5a3d31",
-              borderColor: "#5a3d31",
-              "&:hover": {
-                backgroundColor: "#e7dccd",
-                borderColor: buttonHoverColor,
-              },
-            }}
-          >
-            Home
-          </Button>
+          Home
+        </Button>
+
+        {/* Heading */}
+        <Typography variant="h5" sx={{ color: "#5a3d31", fontWeight: "bold", marginBottom: "20px" }}>
+          Timetable
+        </Typography>
+
+        {/* Select Semester & Class */}
+        <Box sx={{ display: "flex", gap: 2, marginBottom: "20px" }}>
+          <Select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)}>
+            {semesters.map((sem) => (
+              <MenuItem key={sem} value={sem}>{sem}</MenuItem>
+            ))}
+          </Select>
+          <Select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
+            {classes.map((cls) => (
+              <MenuItem key={cls} value={cls}>{cls}</MenuItem>
+            ))}
+          </Select>
         </Box>
 
-        {/* Dropdown Menu for Small Screens */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: "10px",
-            right: "20px",
-            display: { xs: "block", md: "none" }, // Show only on small screens
-          }}
-        >
-          <IconButton onClick={handleMenuClick} sx={{ color: "#5a3d31" }}>
-            <MenuIcon />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            sx={{
-              "& .MuiMenu-paper": {
-                backgroundColor: primaryColor,
-                color: "#5a3d31",
-              },
-            }}
-          >
-            <MenuItem onClick={handleHomeNavigate}>Home</MenuItem>
-          </Menu>
-        </Box>
-
-        {/* Heading and Logo Section */}
-        <Box sx={{ textAlign: "center", marginBottom: "20px" }}>
-          <Typography
-            variant="h5"
-            sx={{
-              color: "#5a3d31",
-              fontWeight: "bold",
-              marginBottom: "10px",
-            }}
-          >
-            Timetable
-          </Typography>
-          <img
-            src="../images/edu.png"
-            alt="Logo"
-            style={{
-              height: "auto",
-              width: "90px", // Logo size is reduced
-              objectFit: "contain",
-              marginTop: "", // Space between the heading and logo
-            }}
-          />
-        </Box>
-
-        {/* Timetable Section */}
-        <Paper
-          elevation={3}
-          sx={{
-            margin: "50px auto 0",
-            maxWidth: "90%",
-            padding: "",
-            borderRadius: "12px",
-            textAlign: "center",
-            backgroundColor: primaryColor,
-          }}
-        >
-          <Box sx={{ overflowX: "scroll", padding: "10px" }}>
+        {/* Timetable */}
+        <Paper elevation={3} sx={{ maxWidth: "90%", padding: "20px", borderRadius: "12px", backgroundColor: primaryColor }}>
+          <Box sx={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ backgroundColor: secondaryColor }}>
-                  <th
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #5a3d31",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                    }}
-                  >
-                    Period
-                  </th>
-                  <th
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #5a3d31",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                    }}
-                  >
-                    Monday
-                  </th>
-                  <th
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #5a3d31",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                    }}
-                  >
-                    Tuesday
-                  </th>
-                  <th
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #5a3d31",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                    }}
-                  >
-                    Wednesday
-                  </th>
-                  <th
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #5a3d31",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                    }}
-                  >
-                    Thursday
-                  </th>
-                  <th
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #5a3d31",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                    }}
-                  >
-                    Friday
-                  </th>
+                  <th style={{ padding: "10px", border: "2px solid #5a3d31", fontWeight: "bold" }}>Day</th>
+                  {periods.map((period, index) => (
+                    <th key={index} style={{ padding: "10px", border: "2px solid #5a3d31", fontWeight: "bold" }}>{period}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {periods.map((period, periodIndex) => (
-                  <tr key={periodIndex}>
-                    <td
-                      style={{
-                        padding: "10px",
-                        border: "2px solid #5a3d31",
-                        backgroundColor: secondaryColor,
-                        fontWeight: "bold",
-                        textAlign: "center",
-                      }}
-                    >
-                      {period}
-                    </td>
-                    {Object.keys(timetableData).map((day, dayIndex) => (
-                      <td
-                        key={dayIndex}
-                        style={{
-                          padding: "10px",
-                          border: "2px solid #5a3d31",
-                          textAlign: "center",
-                        }}
-                      >
-                        {timetableData[day][periodIndex]}
-                      </td>
+                {Object.keys(timetableData[selectedSemester][selectedClass]).map((day) => (
+                  <tr key={day}>
+                    <td style={{ padding: "10px", border: "2px solid #5a3d31", backgroundColor: secondaryColor, fontWeight: "bold" }}>{day}</td>
+                    {timetableData[selectedSemester][selectedClass][day].map((subject, index) => (
+                      <td key={index} style={{ padding: "10px", border: "2px solid #5a3d31", textAlign: "center" }}>{subject}</td>
                     ))}
                   </tr>
                 ))}
@@ -267,4 +206,4 @@ const Stimetable = () => {
   );
 };
 
-export default Stimetable;
+export default STimetable;

@@ -6,8 +6,9 @@ const ClassroomSchema = new mongoose.Schema({
   subject: { type: String, required: true },
   teacherId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, 
   teacherName: { type: String, required: true }, 
-  studentsPendingApproval: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // New Field
-  approvedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // New Field
+  studentsPendingApproval: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], 
+  approvedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
-module.exports = mongoose.model("Classroom", ClassroomSchema);
+// ✅ Check if model already exists before defining it
+module.exports = mongoose.models.Classroom || mongoose.model("Classroom", ClassroomSchema);

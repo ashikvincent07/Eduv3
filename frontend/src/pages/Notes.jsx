@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -14,12 +14,12 @@ import {
   useMediaQuery,
   FormControl,
   InputLabel,
-  OutlinedInput,
-  InputAdornment,
+  Select,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const primaryColor = "#e7cccc";
 const secondaryColor = "#ede8dc";
@@ -30,8 +30,36 @@ const Notes = () => {
   const isSmallScreen = useMediaQuery("(max-width:600px)");
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [heading, setHeading] = useState("");
-  const [file, setFile] = useState(null);
+  const [noteLink, setNoteLink] = useState("");
   const [alert, setAlert] = useState({ open: false, type: "", message: "" });
+  const [classList, setClassList] = useState([]);
+  const [selectedClass, setSelectedClass] = useState("");
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found, user might be logged out");
+          return;
+        }
+
+        const response = await axios.get("http://localhost:5000/api/classrooms/teacher/classes", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (Array.isArray(response.data.classes)) {
+          setClassList(response.data.classes);
+        } else {
+          console.error("Expected an array but got:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching class list:", error);
+      }
+    };
+
+    fetchClasses();
+  }, []);
 
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget); // Opens the menu
@@ -51,47 +79,40 @@ const Notes = () => {
     handleMenuClose();
   };
 
-  const handleHeadingChange = (event) => {
-    setHeading(event.target.value);
-  };
-
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    if (selectedFile && selectedFile.size <= 10485760) { // 10MB limit
-      setFile(selectedFile);
-    } else {
-      setAlert({
-        open: true,
-        type: "error",
-        message: "File size should be less than 10MB!",
-      });
-    }
-  };
-
-  const handleSubmit = () => {
-    if (!heading.trim()) {
-      setAlert({ open: true, type: "error", message: "Heading is required!" });
+  const handleSubmit = async () => {
+    if (!heading.trim() || !selectedClass || !noteLink.trim()) {
+      setAlert({ open: true, type: "error", message: "All fields are required!" });
       return;
     }
 
-    if (!file) {
-      setAlert({ open: true, type: "error", message: "File is required!" });
+    const teacherId = localStorage.getItem("teacherId");
+    if (!teacherId) {
+      setAlert({ open: true, type: "error", message: "Teacher ID is missing. Please log in again." });
       return;
     }
 
-    setAlert({
-      open: true,
-      type: "success",
-      message: "Notes uploaded successfully!",
-    });
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found, user might be logged out");
+        return;
+      }
 
-    // Simulate form submission
-    console.log("Heading:", heading);
-    console.log("File:", file);
-  };
+      const response = await axios.post(
+        "http://localhost:5000/api/notes/upload",
+        { heading, classId: selectedClass, teacherId, fileUrl: noteLink },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-  const handleAlertClose = () => {
-    setAlert({ ...alert, open: false });
+      console.log("Upload success:", response.data);
+      setAlert({ open: true, type: "success", message: "Notes shared successfully!" });
+      setHeading("");
+      setNoteLink("");
+      setSelectedClass("");
+    } catch (error) {
+      console.error("Upload failed:", error.response ? error.response.data : error);
+      setAlert({ open: true, type: "error", message: "Failed to share notes!" });
+    }
   };
 
   return (
@@ -102,47 +123,8 @@ const Notes = () => {
       transition={{ duration: 0.8 }}
       style={{ minHeight: "100vh", width: "100vw" }}
     >
-      <Box
-        sx={{
-          minHeight: "100vh",
-          width: "100vw",
-          overflowX: "hidden",
-          background: "linear-gradient(to right, #e7cccc, #ede8dc)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          padding: "20px 0",
-          position: "relative",
-        }}
-      >
-        {/* Top Section with Heading and Logo */}
-        <Box
-          sx={{
-            width: "100%",
-            textAlign: "center",
-            padding: "",
-          }}
-        >
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: "bold",
-              color: "#5a3d31",
-            }}
-          >
-            Upload Notes
-          </Typography>
-          <img
-            src="/images/edu.png"
-            alt="Logo"
-            style={{
-              height: "auto",
-              width: "90px",
-              objectFit: "contain",
-              marginTop: "5px",
-            }}
-          />
-        </Box>
+      <Box sx={{ minHeight: "100vh", width: "100vw", display: "flex", flexDirection: "column", alignItems: "center", padding: "20px 0" }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31" }}>Upload Notes</Typography>
 
         {/* Menu and Form Component */}
         <Box
@@ -178,7 +160,7 @@ const Notes = () => {
                   horizontal: 'right',
                 }}
               >
-                <MenuItem onClick={handleManageNavigate}>Manage Assignments</MenuItem>
+                <MenuItem onClick={handleManageNavigate}>Manage Notes</MenuItem>
                 <MenuItem onClick={handleHomeNavigate}>Home</MenuItem>
               </Menu>
             </>
@@ -222,91 +204,27 @@ const Notes = () => {
           )}
         </Box>
 
-        <Paper
-          elevation={3}
-          sx={{
-            margin: "100px auto 0",
-            maxWidth: "600px",
-            width: "90%",
-            padding: "20px",
-            borderRadius: "12px",
-            textAlign: "center",
-            backgroundColor: primaryColor,
-          }}
-        >
-          <TextField
-            label="Notes Heading"
-            variant="outlined"
-            fullWidth
-            value={heading}
-            onChange={handleHeadingChange}
-            sx={{
-              marginBottom: "15px",
-              backgroundColor: secondaryColor,
-              borderRadius: "8px",
-            }}
-            required
-          />
+        <Paper elevation={3} sx={{ margin: "50px auto", maxWidth: "600px", width: "90%", padding: "20px", borderRadius: "12px", textAlign: "center", backgroundColor: primaryColor }}>
+          <TextField label="Notes Heading" variant="outlined" fullWidth value={heading} onChange={(e) => setHeading(e.target.value)} sx={{ marginBottom: "15px", backgroundColor: secondaryColor }} required />
 
-          <Box sx={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
-            <Button
-              variant="outlined"
-              component="label"
-              sx={{
-                backgroundColor: secondaryColor,
-                borderRadius: "8px",
-                width: "100%",
-                padding: "10px",
-                textAlign: "center",
-                "&:hover": {
-                  backgroundColor: buttonHoverColor,
-                },
-              }}
-            >
-              Upload Notes
-              <input
-                type="file"
-                accept="application/pdf,application/msword,.docx,.pptx,.txt,.zip"
-                hidden
-                onChange={handleFileChange}
-              />
-            </Button>
-            {file && (
-              <Box sx={{ marginLeft: "10px", textAlign: "left", flexShrink: 0 }}>
-                <Typography variant="body2" sx={{ color: "#5a3d31" }}>
-                  {file.name} ({(file.size / 1048576).toFixed(2)} MB)
-                </Typography>
-              </Box>
-            )}
-          </Box>
+          <FormControl fullWidth sx={{ marginBottom: "15px" }}>
+            <InputLabel required>Select Class</InputLabel>
+            <Select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)} label="Select Class" sx={{ backgroundColor: secondaryColor }} required>
+              {classList.map((cls) => (
+                <MenuItem key={cls._id} value={cls._id}>{cls.subject} - {cls.semester} - {cls.batch}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            sx={{
-              marginTop: "20px",
-              backgroundColor: "#5a3d31",
-              color: "#fff",
-              "&:hover": {
-                backgroundColor: buttonHoverColor,
-              },
-            }}
-            fullWidth
-          >
-            Upload Notes
+          <TextField label="Notes Link" variant="outlined" fullWidth value={noteLink} onChange={(e) => setNoteLink(e.target.value)} sx={{ marginBottom: "15px", backgroundColor: secondaryColor }} required />
+
+          <Button variant="contained" onClick={handleSubmit} sx={{ marginTop: "20px", backgroundColor: "#5a3d31", color: "#fff" }} fullWidth>
+            Share Notes
           </Button>
         </Paper>
 
-        <Snackbar
-          open={alert.open}
-          autoHideDuration={3000}
-          onClose={handleAlertClose}
-        >
-          <Alert
-            onClose={handleAlertClose}
-            severity={alert.type}
-            sx={{ width: "100%" }}
-          >
+        <Snackbar open={alert.open} autoHideDuration={3000} onClose={() => setAlert({ ...alert, open: false })}>
+          <Alert onClose={() => setAlert({ ...alert, open: false })} severity={alert.type} sx={{ width: "100%" }}>
             {alert.message}
           </Alert>
         </Snackbar>

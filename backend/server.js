@@ -4,7 +4,10 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 
 const userRoutes = require("./routes/authroutes");
-const classroomRoutes = require("./routes/classroomRoutes"); // Import Classroom Routes
+const classroomRoutes = require("./routes/classroomRoutes");
+const announcementRoutes = require("./routes/announcementRoutes");
+const notesRoutes = require("./routes/noteRoutes");
+
 
 dotenv.config();
 
@@ -13,7 +16,10 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api/auth", userRoutes);
-app.use("/api/classrooms", classroomRoutes); // Add Classroom Routes
+app.use("/api/classrooms", classroomRoutes);
+app.use("/uploads", express.static("uploads"));
+app.use("/api/notes", notesRoutes);
+app.use("/api/announcements", announcementRoutes);
 
 const PORT = process.env.PORT || 5000;
 

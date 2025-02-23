@@ -11,34 +11,37 @@ const Tlogin = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    setError(""); // Clear previous errors
-
+    e.preventDefault();
+    setError("");
+  
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", {
         email,
         password,
       });
-
-      // Extract token and user details
+  
       const { token, user } = response.data;
-
-      // Check if the user has the role of "teacher"
+  
+      console.log("Login Response:", response.data); // Debugging
+  
       if (user.role !== "teacher") {
         setError("Access denied. Only teachers can log in.");
         return;
       }
-
-      // Store token and user in localStorage
+  
+      console.log("Teacher ID:", user.id); // Debugging
+  
+      // Store teacherId properly
+      localStorage.setItem("teacherId", user.id); // ✅ Ensure this is stored
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-
-      // Redirect to the teacher's dashboard
+  
       navigate("/teacher");
     } catch (err) {
       setError(err.response?.data?.error || "Invalid credentials, please try again.");
     }
   };
+  
 
   return (
     <motion.div

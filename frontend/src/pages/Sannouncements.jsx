@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -15,6 +15,7 @@ import {
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
+import axios from "axios";
 
 const primaryColor = "#e7cccc";
 const secondaryColor = "#ede8dc";
@@ -23,13 +24,27 @@ const buttonHoverColor = "#7a5e51";
 const Sannouncements = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width:600px)");
-  const [announcements] = useState([
-    { id: 1, heading: "Event Update", text: "Details about the event", image: null },
-    { id: 2, heading: "Holiday Notice", text: "School holiday announced", image: null },
-  ]);
+  const [announcements, setAnnouncements] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [openImageDialog, setOpenImageDialog] = useState(false);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || !user.id) return;
+
+        const response = await axios.get(
+          `http://localhost:5000/api/announcements/student/${user.id}`
+        );
+        setAnnouncements(response.data);
+      } catch (error) {
+        console.error("Error fetching announcements:", error);
+      }
+    };
+    fetchAnnouncements();
+  }, []);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -81,81 +96,70 @@ const Sannouncements = () => {
             padding: "0 20px",
           }}
         >
+          {/* Responsive Home Button */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: "20px",
+              right: "20px",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            {isSmallScreen ? (
+              <>
+                <IconButton onClick={(e) => setMenuAnchor(e.currentTarget)} sx={{ color: "#5a3d31" }}>
+                  <MenuIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={menuAnchor}
+                  open={Boolean(menuAnchor)}
+                  onClose={() => setMenuAnchor(null)}
+                >
+                  <MenuItem onClick={() => navigate("/student")}>Home</MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Button
+                variant="outlined"
+                onClick={() => navigate("/student")}
+                sx={{
+                  color: "#5a3d31",
+                  borderColor: "#5a3d31",
+                  "&:hover": { backgroundColor: "#e7dccd", borderColor: "#7a5e51" },
+                }}
+              >
+                Home
+              </Button>
+            )}
+          </Box>
           <Box sx={{ textAlign: "center", flex: 1 }}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: "bold",
-                color: "#5a3d31",
-                marginBottom: "5px",
-              }}
-            >
+            <Typography variant="h5" sx={{ fontWeight: "bold", color: "#5a3d31", marginBottom: "5px" }}>
               Announcements
             </Typography>
-            <img
-              src="/images/edu.png"
-              alt="Logo"
-              style={{
-                height: "auto",
-                width: "90px",
-                objectFit: "contain",
-              }}
-            />
+            <img src="/images/edu.png" alt="Logo" style={{ height: "auto", width: "90px", objectFit: "contain" }} />
           </Box>
-
-          {/* Home Button on Large Screens */}
-          {!isSmallScreen && (
-            <Button
-              variant="outlined"
-              onClick={() => navigate("/student")}
-              sx={{
-                color: "#5a3d31",
-                borderColor: "#5a3d31",
-                "&:hover": {
-                  backgroundColor: "#e7dccd",
-                  borderColor: buttonHoverColor,
-                },
-              }}
-            >
-              Home
-            </Button>
-          )}
-
-          {/* Responsive Menu for Small Screens */}
-          {isSmallScreen && (
-            <>
-              <IconButton onClick={handleMenuClick} sx={{ color: "#5a3d31" }}>
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-              >
-                <MenuItem onClick={() => navigate("/student")}>Home</MenuItem>
-              </Menu>
-            </>
-          )}
         </Box>
 
         {/* Announcement Cards */}
         <Grid container spacing={2} sx={{ maxWidth: "800px", marginTop: "100px" }}>
-          {announcements.map((announcement) => (
-            <Grid item xs={12} sm={6} key={announcement.id}>
-              <Paper
-                elevation={3}
-                sx={{
-                  padding: "15px",
-                  borderRadius: "12px",
-                  backgroundColor: primaryColor,
-                }}
-              >
+        {announcements.map((announcement) => (
+          <Grid item xs={12} sm={6} key={announcement._id}>
+            <Paper elevation={3} sx={{ padding: "15px", borderRadius: "12px", backgroundColor: primaryColor }}>
+              
+              {/* Display Class Information */}
+              <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#7a5c58", marginBottom: "5px" }}>
+                {announcement.classId?.batch} - {announcement.classId?.semester} ({announcement.classId?.subject})
+              </Typography>
+            
+              {/* Display Image */}
+              {announcement.imageUrl && (
                 <Box
-                  onClick={() => handleImageClick(announcement.image || "https://th.bing.com/th/id/OIP.0SaE9Mkqufvz4VilIyaD-QHaHa?w=182&h=182&c=7&r=0&o=5&pid=1.7")}
+                  onClick={() => handleImageClick(`http://localhost:5000${announcement.imageUrl}`)}
                   sx={{
                     width: "100%",
                     paddingTop: "56.25%",
-                    backgroundImage: `url(${announcement.image || "https://th.bing.com/th/id/OIP.0SaE9Mkqufvz4VilIyaD-QHaHa?w=182&h=182&c=7&r=0&o=5&pid=1.7"})`,
+                    backgroundImage: `url(http://localhost:5000${announcement.imageUrl})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     borderRadius: "8px",
@@ -163,38 +167,31 @@ const Sannouncements = () => {
                     cursor: "pointer",
                   }}
                 />
+              )}
 
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", color: "#5a3d31", marginBottom: "10px" }}
-                >
-                  {announcement.heading}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#5a3d31", marginBottom: "10px" }}
-                >
-                  {announcement.text}
-                </Typography>
-              </Paper>
-            </Grid>
-          ))}
+              
+
+              {/* Display Heading */}
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#5a3d31", marginBottom: "10px" }}>
+                {announcement.heading}
+              </Typography>
+
+              {/* Display Text */}
+              <Typography variant="body2" sx={{ color: "#5a3d31", marginBottom: "10px" }}>
+                {announcement.text}
+              </Typography>
+              
+            </Paper>
+          </Grid>
+        ))}
+
         </Grid>
 
         {/* Fullscreen Image Dialog */}
-        <Dialog
-          open={openImageDialog}
-          onClose={handleCloseImageDialog}
-          maxWidth="lg"
-        >
+        <Dialog open={openImageDialog} onClose={handleCloseImageDialog} maxWidth="lg">
           <DialogContent>
             {selectedImage && (
-              <Box
-                component="img"
-                src={selectedImage}
-                alt="Announcement"
-                sx={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }}
-              />
+              <Box component="img" src={selectedImage} alt="Announcement" sx={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }} />
             )}
           </DialogContent>
         </Dialog>

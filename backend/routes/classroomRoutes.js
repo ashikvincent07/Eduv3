@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const Classroom = require("../models/classroom");
 const User = require("../models/user");
+const Classroom = require("../models/Classroom");
 const jwt = require("jsonwebtoken");
 
 // Middleware to verify JWT Token
